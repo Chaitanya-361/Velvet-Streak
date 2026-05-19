@@ -1,0 +1,113 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --vs-deep: #003D40;
+  --vs-teal: #00838F;
+  --vs-blue: #006064;
+  --vs-gold: #FFD54F;
+  --vs-feather: #4DD0E1;
+  --vs-emerald: #00C853;
+  --vs-rose: #F48FB1;
+  --vs-surface: #1A2E35;
+  --vs-text: #E0F7FA;
+  --vs-muted: #80CBC4;
+  --vs-surface-hover: #243B44;
+  --vs-border: #2A4A54;
+  --vs-bg: #003D40;
+}
+
+.light {
+  --vs-deep: #F5F5F0;
+  --vs-teal: #00838F;
+  --vs-blue: #006064;
+  --vs-gold: #F9A825;
+  --vs-feather: #00838F;
+  --vs-emerald: #00C853;
+  --vs-rose: #E91E63;
+  --vs-surface: #FFFFFF;
+  --vs-text: #1A2E35;
+  --vs-muted: #607D8B;
+  --vs-surface-hover: #F0F4F5;
+  --vs-border: #E0E0E0;
+  --vs-bg: #F5F5F0;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  font-family: 'Inter', system-ui, sans-serif;
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--vs-bg);
+  color: var(--vs-text);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--vs-muted);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--vs-feather);
+}
+
+/* Utility classes */
+@layer utilities {
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-vs-feather to-vs-gold;
+  }
+  .glass {
+    background: rgba(26, 46, 53, 0.6);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(77, 208, 225, 0.1);
+  }
+  .glass-light {
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(0, 131, 143, 0.1);
+  }
+  .card-hover {
+    transition: all 0.3s ease;
+  }
+  .card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 15px -3px rgba(0, 131, 143, 0.1), 0 4px 6px -4px rgba(0, 131, 143, 0.1);
+  }
+  .shimmer-bg {
+    background: linear-gradient(90deg, transparent, rgba(77, 208, 225, 0.1), transparent);
+    background-size: 200% 100%;
+  }
+}
+
+/* Focus styles */
+*:focus-visible {
+  outline: 2px solid var(--vs-feather);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Selection */
+::selection {
+  background: var(--vs-teal);
+  color: var(--vs-text);
+}
