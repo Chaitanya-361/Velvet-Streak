@@ -1,17 +1,16 @@
 import { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import { v4 as uuid } from 'uuid';
 import { env } from '../config/env';
-import { store } from '../data/store';
+import { User } from '../models/User';
 import { AppError, AuthRequest } from '../types';
 
 function generateAccessToken(userId: string): string {
-  return jwt.sign({ sub: userId }, env.JWT_ACCESS_SECRET, { expiresIn: env.JWT_ACCESS_EXPIRY });
+  return jwt.sign({ sub: userId }, env.JWT_ACCESS_SECRET as jwt.Secret, { expiresIn: env.JWT_ACCESS_EXPIRY as any });
 }
 
 function generateRefreshToken(userId: string): string {
-  return jwt.sign({ sub: userId }, env.JWT_REFRESH_SECRET, { expiresIn: env.JWT_REFRESH_EXPIRY });
+  return jwt.sign({ sub: userId }, env.JWT_REFRESH_SECRET as jwt.Secret, { expiresIn: env.JWT_REFRESH_EXPIRY as any });
 }
 
 function setRefreshCookie(res: Response, token: string) {
@@ -29,17 +28,19 @@ export async function register(req: Request, res: Response, next: NextFunction) 
   try {
     const { email, username, password, displayName } = req.body;
 
-    if (store.findUserByEmail(email)) {
+    const existingEmail = await User.findOne({ email: email.toLowerCase().trim() });
+    if (existingEmail) {
       throw new AppError('CONFLICT', 409, 'Email already registered');
     }
-    if (store.findUserByUsername(username)) {
+    const existingUsername = await User.findOne({ username: username.trim() });
+    if (existingUsername) {
       throw new AppError('CONFLICT', 409, 'Username already taken');
     }
 
     const passwordHash = await bcrypt.hash(password, env.BCRYPT_ROUNDS);
     const now = new Date().toISOString();
-    const user = {
-      _id: uuid(),
+    
+    const user = new User({
       email: email.toLowerCase().trim(),
       username: username.trim(),
       passwordHash,
@@ -51,8 +52,8 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       preferences: {
         timezone: 'UTC',
         dayBoundaryTime: '03:00',
-        weekStartDay: 'MON' as const,
-        theme: 'dark' as const,
+        weekStartDay: 'MON',
+        theme: 'dark',
       },
       refreshTokens: [],
       isEmailVerified: true, // auto-verified for dev
@@ -63,15 +64,11 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       deletionRequestedAt: null,
       createdAt: now,
       updatedAt: now,
-    };
+    });
 
-    store.users.push(user);
-
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
-
-    // Store refresh token hash
+    const refreshToken = generateRefreshToken(user._id.toString());
     const tokenHash = await bcrypt.hash(refreshToken, 4);
+    
     user.refreshTokens.push({
       tokenHash,
       device: req.headers['user-agent'] || 'unknown',
@@ -79,12 +76,15 @@ export async function register(req: Request, res: Response, next: NextFunction) 
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     });
 
+    await user.save();
+
+    const accessToken = generateAccessToken(user._id.toString());
     setRefreshCookie(res, refreshToken);
 
     res.status(201).json({
       success: true,
       data: {
-        user: sanitizeUser(user),
+        user: sanitizeUser(user.toObject()),
         accessToken,
       },
     });
@@ -98,7 +98,7 @@ export async function login(req: Request, res: Response, next: NextFunction) {
   try {
     const { email, password } = req.body;
 
-    const user = store.findUserByEmail(email);
+    const user = await User.findOne({ email: email.toLowerCase().trim() });
     if (!user) {
       throw new AppError('UNAUTHORIZED', 401, 'Invalid email or password');
     }
@@ -108,8 +108,8 @@ export async function login(req: Request, res: Response, next: NextFunction) {
       throw new AppError('UNAUTHORIZED', 401, 'Invalid email or password');
     }
 
-    const accessToken = generateAccessToken(user._id);
-    const refreshToken = generateRefreshToken(user._id);
+    const accessToken = generateAccessToken(user._id.toString());
+    const refreshToken = generateRefreshToken(user._id.toString());
 
     const tokenHash = await bcrypt.hash(refreshToken, 4);
     user.refreshTokens.push({
@@ -123,12 +123,13 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     const now = Date.now();
     user.refreshTokens = user.refreshTokens.filter(t => new Date(t.expiresAt).getTime() > now);
 
+    await user.save();
     setRefreshCookie(res, refreshToken);
 
     res.json({
       success: true,
       data: {
-        user: sanitizeUser(user),
+        user: sanitizeUser(user.toObject()),
         accessToken,
       },
     });
@@ -152,7 +153,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
       throw new AppError('UNAUTHORIZED', 401, 'Invalid or expired refresh token');
     }
 
-    const user = store.findUserById(decoded.sub);
+    const user = await User.findById(decoded.sub);
     if (!user) {
       throw new AppError('UNAUTHORIZED', 401, 'User not found');
     }
@@ -170,8 +171,8 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
     // Rotate: remove old, issue new
     user.refreshTokens.splice(matchIdx, 1);
 
-    const newAccessToken = generateAccessToken(user._id);
-    const newRefreshToken = generateRefreshToken(user._id);
+    const newAccessToken = generateAccessToken(user._id.toString());
+    const newRefreshToken = generateRefreshToken(user._id.toString());
 
     const newTokenHash = await bcrypt.hash(newRefreshToken, 4);
     user.refreshTokens.push({
@@ -181,6 +182,7 @@ export async function refresh(req: Request, res: Response, next: NextFunction) {
       expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString(),
     });
 
+    await user.save();
     setRefreshCookie(res, newRefreshToken);
 
     res.json({
@@ -197,13 +199,14 @@ export async function logout(req: AuthRequest, res: Response, next: NextFunction
   try {
     const token = req.cookies?.refreshToken;
     if (token && req.user) {
-      const user = store.findUserById(req.user._id);
+      const user = await User.findById(req.user._id);
       if (user) {
         // Remove matching token
         for (let i = user.refreshTokens.length - 1; i >= 0; i--) {
           const valid = await bcrypt.compare(token, user.refreshTokens[i].tokenHash);
           if (valid) { user.refreshTokens.splice(i, 1); break; }
         }
+        await user.save();
       }
     }
 
@@ -215,11 +218,11 @@ export async function logout(req: AuthRequest, res: Response, next: NextFunction
 }
 
 // GET /api/auth/me
-export function getMe(req: AuthRequest, res: Response, next: NextFunction) {
+export async function getMe(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const user = store.findUserById(req.user!._id);
+    const user = await User.findById(req.user!._id);
     if (!user) throw new AppError('NOT_FOUND', 404, 'User not found');
-    res.json({ success: true, data: sanitizeUser(user) });
+    res.json({ success: true, data: sanitizeUser(user.toObject()) });
   } catch (err) {
     next(err);
   }
@@ -227,5 +230,6 @@ export function getMe(req: AuthRequest, res: Response, next: NextFunction) {
 
 function sanitizeUser(user: any) {
   const { passwordHash, refreshTokens, emailVerifyToken, emailVerifyExpiry, passwordResetToken, passwordResetExpiry, ...safe } = user;
+  if (safe._id) safe._id = safe._id.toString();
   return safe;
 }

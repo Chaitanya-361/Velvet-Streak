@@ -1,21 +1,22 @@
 import { Response, NextFunction } from 'express';
-import { v4 as uuid } from 'uuid';
-import { store } from '../data/store';
-import { AppError, AuthRequest, Habit } from '../types';
+import { AppError, AuthRequest } from '../types';
+import { Habit } from '../models/Habit';
+import { CheckIn } from '../models/CheckIn';
+import { RestDay } from '../models/RestDay';
 
 // GET /api/habits
-export function getHabits(req: AuthRequest, res: Response, next: NextFunction) {
+export async function getHabits(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const habits = store.findHabitsByUser(req.user!._id);
+    const habits = await Habit.find({ userId: req.user!._id }).sort({ sortOrder: 1 });
     res.json({ success: true, data: habits });
   } catch (err) { next(err); }
 }
 
 // GET /api/habits/:id
-export function getHabit(req: AuthRequest, res: Response, next: NextFunction) {
+export async function getHabit(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const habit = store.findHabitById(req.params.id);
-    if (!habit || habit.userId !== req.user!._id) {
+    const habit = await Habit.findById(req.params.id);
+    if (!habit || habit.userId.toString() !== req.user!._id) {
       throw new AppError('NOT_FOUND', 404, 'Habit not found');
     }
     res.json({ success: true, data: habit });
@@ -23,7 +24,7 @@ export function getHabit(req: AuthRequest, res: Response, next: NextFunction) {
 }
 
 // POST /api/habits
-export function createHabit(req: AuthRequest, res: Response, next: NextFunction) {
+export async function createHabit(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const userId = req.user!._id;
     const {
@@ -31,11 +32,10 @@ export function createHabit(req: AuthRequest, res: Response, next: NextFunction)
       quantitative, schedule, restDayConfig, startDate,
     } = req.body;
 
-    const existingHabits = store.findHabitsByUser(userId);
+    const existingHabitsCount = await Habit.countDocuments({ userId });
     const now = new Date().toISOString();
 
-    const habit: Habit = {
-      _id: uuid(),
+    const habit = new Habit({
       userId,
       name,
       icon: icon || '🎯',
@@ -57,7 +57,7 @@ export function createHabit(req: AuthRequest, res: Response, next: NextFunction)
         allowed: restDayConfig?.allowed ?? false,
         maxPerWeek: restDayConfig?.maxPerWeek ?? null,
       },
-      sortOrder: existingHabits.length,
+      sortOrder: existingHabitsCount,
       startDate: startDate || new Date().toISOString().slice(0, 10),
       currentStreak: 0,
       longestStreak: 0,
@@ -65,18 +65,18 @@ export function createHabit(req: AuthRequest, res: Response, next: NextFunction)
       lastCheckInLogicalDate: null,
       createdAt: now,
       updatedAt: now,
-    };
+    });
 
-    store.habits.push(habit);
+    await habit.save();
     res.status(201).json({ success: true, data: habit });
   } catch (err) { next(err); }
 }
 
 // PATCH /api/habits/:id
-export function updateHabit(req: AuthRequest, res: Response, next: NextFunction) {
+export async function updateHabit(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const habit = store.findHabitById(req.params.id);
-    if (!habit || habit.userId !== req.user!._id) {
+    const habit = await Habit.findById(req.params.id);
+    if (!habit || habit.userId.toString() !== req.user!._id) {
       throw new AppError('NOT_FOUND', 404, 'Habit not found');
     }
 
@@ -84,58 +84,68 @@ export function updateHabit(req: AuthRequest, res: Response, next: NextFunction)
     for (const key of allowed) {
       if (req.body[key] !== undefined) {
         (habit as any)[key] = req.body[key];
+        habit.markModified(key); // Just in case it's nested
       }
     }
     habit.updatedAt = new Date().toISOString();
+    await habit.save();
 
     res.json({ success: true, data: habit });
   } catch (err) { next(err); }
 }
 
 // DELETE /api/habits/:id
-export function deleteHabit(req: AuthRequest, res: Response, next: NextFunction) {
+export async function deleteHabit(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const habit = store.findHabitById(req.params.id);
-    if (!habit || habit.userId !== req.user!._id) {
+    const habit = await Habit.findById(req.params.id);
+    if (!habit || habit.userId.toString() !== req.user!._id) {
       throw new AppError('NOT_FOUND', 404, 'Habit not found');
     }
-    store.deleteHabitCascade(habit._id);
+    
+    // Cascade delete
+    await CheckIn.deleteMany({ habitId: habit._id.toString() });
+    await RestDay.deleteMany({ habitId: habit._id.toString() });
+    await Habit.findByIdAndDelete(habit._id);
+
     res.json({ success: true, data: { message: 'Habit deleted' } });
   } catch (err) { next(err); }
 }
 
 // PATCH /api/habits/reorder
-export function reorderHabits(req: AuthRequest, res: Response, next: NextFunction) {
+export async function reorderHabits(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const { order } = req.body; // [{ habitId, sortOrder }]
     if (!Array.isArray(order)) throw new AppError('VALIDATION_ERROR', 422, 'order must be an array');
 
-    for (const { habitId, sortOrder } of order) {
-      const habit = store.findHabitById(habitId);
-      if (habit && habit.userId === req.user!._id) {
-        habit.sortOrder = sortOrder;
+    const bulkOps = order.map(({ habitId, sortOrder }) => ({
+      updateOne: {
+        filter: { _id: habitId, userId: req.user!._id },
+        update: { $set: { sortOrder } }
       }
+    }));
+
+    if (bulkOps.length > 0) {
+      await Habit.bulkWrite(bulkOps);
     }
 
-    const habits = store.findHabitsByUser(req.user!._id);
+    const habits = await Habit.find({ userId: req.user!._id }).sort({ sortOrder: 1 });
     res.json({ success: true, data: habits });
   } catch (err) { next(err); }
 }
 
 // GET /api/habits/:id/calendar?month=2026-05
-export function getHabitCalendar(req: AuthRequest, res: Response, next: NextFunction) {
+export async function getHabitCalendar(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const habit = store.findHabitById(req.params.id);
-    if (!habit || habit.userId !== req.user!._id) {
+    const habit = await Habit.findById(req.params.id);
+    if (!habit || habit.userId.toString() !== req.user!._id) {
       throw new AppError('NOT_FOUND', 404, 'Habit not found');
     }
 
     const month = (req.query.month as string) || new Date().toISOString().slice(0, 7);
+    const regex = new RegExp(`^${month}`);
 
-    const checkIns = store.findCheckIns({ habitId: habit._id })
-      .filter(c => c.logicalDate.startsWith(month));
-    const restDays = store.findRestDays({ habitId: habit._id })
-      .filter(r => r.logicalDate.startsWith(month));
+    const checkIns = await CheckIn.find({ habitId: habit._id.toString(), logicalDate: { $regex: regex } });
+    const restDays = await RestDay.find({ habitId: habit._id.toString(), logicalDate: { $regex: regex } });
 
     const checkedDates = new Set(checkIns.map(c => c.logicalDate));
     const restDates = new Set(restDays.map(r => r.logicalDate));

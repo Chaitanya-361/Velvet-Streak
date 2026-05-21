@@ -1,10 +1,14 @@
-import { store } from '../data/store';
-import type { User } from '../types';
+import { User } from '../models/User';
+import { Habit } from '../models/Habit';
+import { CheckIn } from '../models/CheckIn';
+import { Todo } from '../models/Todo';
+import { Badge } from '../models/Badge';
+import type { User as IUser } from '../types';
 
 const LEVEL_THRESHOLDS = [0, 200, 500, 1000, 2000, 4000, 7000, 12000, 20000, 35000];
 
-export function awardXP(userId: string, amount: number): { levelledUp: boolean; newLevel: number } {
-  const user = store.findUserById(userId);
+export async function awardXP(userId: string, amount: number): Promise<{ levelledUp: boolean; newLevel: number }> {
+  const user = await User.findById(userId);
   if (!user) return { levelledUp: false, newLevel: 1 };
 
   user.xp += amount;
@@ -16,21 +20,25 @@ export function awardXP(userId: string, amount: number): { levelledUp: boolean; 
     user.level = Math.min(newLevel, 10);
   }
 
+  await user.save();
   return { levelledUp: newLevel > oldLevel, newLevel: user.level };
 }
 
-export function checkBadges(userId: string): string[] {
-  const user = store.findUserById(userId);
+export async function checkBadges(userId: string): Promise<string[]> {
+  const user = await User.findById(userId);
   if (!user) return [];
 
   const earnedKeys = new Set(user.badgesEarned.map(b => b.badgeKey));
   const newBadges: string[] = [];
-  const userCheckIns = store.checkIns.filter(c => c.userId === userId);
-  const userHabits = store.habits.filter(h => h.userId === userId);
-  const completedTodos = store.todos.filter(t => t.userId === userId && t.isCompleted);
+  
+  const userCheckIns = await CheckIn.find({ userId });
+  const userHabits = await Habit.find({ userId });
+  const completedTodos = await Todo.find({ userId, isCompleted: true });
+  
+  const allBadges = await Badge.find({});
 
   // Evaluate each unearned badge
-  for (const badge of store.badges) {
+  for (const badge of allBadges) {
     if (earnedKeys.has(badge.key)) continue;
 
     let earned = false;
@@ -54,41 +62,46 @@ export function checkBadges(userId: string): string[] {
         earned = completedTodos.length >= 50;
         break;
       case 'rainbow': {
-        const categories = new Set(userCheckIns.map(c => {
-          const h = store.findHabitById(c.habitId);
-          return h?.category;
-        }).filter(Boolean));
+        const categories = new Set();
+        for (const c of userCheckIns) {
+          const h = userHabits.find(hab => hab._id.toString() === c.habitId.toString());
+          if (h?.category) categories.add(h.category);
+        }
         earned = categories.size >= 5;
         break;
       }
       case 'athlete':
-        earned = userCheckIns.filter(c => store.findHabitById(c.habitId)?.category === 'Fitness').length >= 50;
+        earned = userCheckIns.filter(c => userHabits.find(h => h._id.toString() === c.habitId.toString())?.category === 'Fitness').length >= 50;
         break;
       case 'creator':
-        earned = userCheckIns.filter(c => store.findHabitById(c.habitId)?.category === 'Creative').length >= 50;
+        earned = userCheckIns.filter(c => userHabits.find(h => h._id.toString() === c.habitId.toString())?.category === 'Creative').length >= 50;
         break;
       case 'scholar':
-        earned = userCheckIns.filter(c => store.findHabitById(c.habitId)?.category === 'Learning').length >= 50;
+        earned = userCheckIns.filter(c => userHabits.find(h => h._id.toString() === c.habitId.toString())?.category === 'Learning').length >= 50;
         break;
       case 'zen_master':
-        earned = userCheckIns.filter(c => store.findHabitById(c.habitId)?.category === 'Wellness').length >= 50;
+        earned = userCheckIns.filter(c => userHabits.find(h => h._id.toString() === c.habitId.toString())?.category === 'Wellness').length >= 50;
         break;
-      // Others require more complex evaluation — simplified for now
       default:
         break;
     }
 
     if (earned) {
       user.badgesEarned.push({ badgeKey: badge.key, earnedAt: new Date().toISOString() });
-      awardXP(userId, badge.xpReward);
+      await awardXP(userId, badge.xpReward);
       newBadges.push(badge.key);
     }
+  }
+
+  if (newBadges.length > 0) {
+    await user.save();
   }
 
   return newBadges;
 }
 
-export function getXPInfo(user: User) {
+// Accepts a generic object matching User shape, but avoiding strict mongoose document checking
+export function getXPInfo(user: { level: number, xp: number }) {
   const level = user.level;
   const currentLevelXP = LEVEL_THRESHOLDS[level - 1] || 0;
   const nextLevelXP = LEVEL_THRESHOLDS[level] || 35000;

@@ -11,4 +11,5 @@ export const env = {
   CORS_ALLOWED_ORIGINS: (process.env.CORS_ALLOWED_ORIGINS || 'http://localhost:5173').split(','),
   COOKIE_SECRET: process.env.COOKIE_SECRET || 'dev-cookie-secret',
   BCRYPT_ROUNDS: parseInt(process.env.BCRYPT_ROUNDS || '12', 10),
+  MONGO_URI: process.env.MONGO_URI || 'mongodb://127.0.0.1:27017/velvet-streak',
 };

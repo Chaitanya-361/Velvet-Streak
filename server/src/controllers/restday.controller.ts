@@ -1,18 +1,20 @@
 import { Response, NextFunction } from 'express';
-import { v4 as uuid } from 'uuid';
-import { store } from '../data/store';
 import { AppError, AuthRequest } from '../types';
 import { getCurrentLogicalDate, getISOWeekLabel } from '../services/dayBoundary.service';
+import { User } from '../models/User';
+import { Habit } from '../models/Habit';
+import { RestDay } from '../models/RestDay';
 
 // POST /api/restdays
-export function createRestDay(req: AuthRequest, res: Response, next: NextFunction) {
+export async function createRestDay(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const userId = req.user!._id;
-    const user = store.findUserById(userId)!;
+    const user = await User.findById(userId);
+    if (!user) throw new AppError('NOT_FOUND', 404, 'User not found');
     const { habitId } = req.body;
 
-    const habit = store.findHabitById(habitId);
-    if (!habit || habit.userId !== userId) {
+    const habit = await Habit.findById(habitId);
+    if (!habit || habit.userId.toString() !== userId) {
       throw new AppError('NOT_FOUND', 404, 'Habit not found');
     }
     if (!habit.restDayConfig.allowed) {
@@ -23,26 +25,26 @@ export function createRestDay(req: AuthRequest, res: Response, next: NextFunctio
     const weekLabel = getISOWeekLabel(logicalDate);
 
     // Check weekly budget
-    const weekRestDays = store.findRestDays({ habitId }).filter(r => r.weekLabel === weekLabel);
+    const weekRestDays = await RestDay.find({ habitId, weekLabel });
     if (habit.restDayConfig.maxPerWeek !== null && weekRestDays.length >= habit.restDayConfig.maxPerWeek) {
       throw new AppError('BAD_REQUEST', 400, `Rest day budget (${habit.restDayConfig.maxPerWeek}/week) exhausted`);
     }
 
     // Check no duplicate
-    if (store.findRestDays({ habitId, logicalDate }).length > 0) {
+    const existing = await RestDay.findOne({ habitId, logicalDate });
+    if (existing) {
       throw new AppError('CONFLICT', 409, 'Rest day already marked for today');
     }
 
-    const restDay = {
-      _id: uuid(),
+    const restDay = new RestDay({
       userId,
       habitId,
       logicalDate,
       weekLabel,
       createdAt: new Date().toISOString(),
-    };
+    });
 
-    store.restDays.push(restDay);
+    await restDay.save();
 
     res.status(201).json({
       success: true,
@@ -56,12 +58,11 @@ export function createRestDay(req: AuthRequest, res: Response, next: NextFunctio
 }
 
 // DELETE /api/restdays/:id
-export function undoRestDay(req: AuthRequest, res: Response, next: NextFunction) {
+export async function undoRestDay(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const idx = store.restDays.findIndex(r => r._id === req.params.id && r.userId === req.user!._id);
-    if (idx === -1) throw new AppError('NOT_FOUND', 404, 'Rest day not found');
+    const restDay = await RestDay.findOneAndDelete({ _id: req.params.id, userId: req.user!._id });
+    if (!restDay) throw new AppError('NOT_FOUND', 404, 'Rest day not found');
 
-    store.restDays.splice(idx, 1);
     res.json({ success: true, data: { message: 'Rest day undone' } });
   } catch (err) { next(err); }
 }

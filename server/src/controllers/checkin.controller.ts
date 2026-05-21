@@ -1,42 +1,44 @@
 import { Response, NextFunction } from 'express';
-import { v4 as uuid } from 'uuid';
-import { store } from '../data/store';
 import { AppError, AuthRequest } from '../types';
 import { getCurrentLogicalDate } from '../services/dayBoundary.service';
 import { isHabitScheduledForDate } from '../services/scheduling.service';
 import { awardXP, checkBadges } from '../services/gamification.service';
+import { User } from '../models/User';
+import { Habit } from '../models/Habit';
+import { CheckIn } from '../models/CheckIn';
 
 const BASE_CHECKIN_XP = 10;
 
 // POST /api/checkins
-export function createCheckIn(req: AuthRequest, res: Response, next: NextFunction) {
+export async function createCheckIn(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const userId = req.user!._id;
-    const user = store.findUserById(userId)!;
+    const user = await User.findById(userId);
+    if (!user) throw new AppError('NOT_FOUND', 404, 'User not found');
+
     const { habitId, slotIndex, amount, note } = req.body;
 
-    const habit = store.findHabitById(habitId);
-    if (!habit || habit.userId !== userId) {
+    const habit = await Habit.findById(habitId);
+    if (!habit || habit.userId.toString() !== userId) {
       throw new AppError('NOT_FOUND', 404, 'Habit not found');
     }
 
     const logicalDate = getCurrentLogicalDate(user.preferences);
 
     // Check not already checked in for this slot
-    const existing = store.findCheckIns({ habitId, logicalDate });
     const slotIdx = slotIndex || 0;
-    if (existing.some(c => c.slotIndex === slotIdx)) {
+    const existing = await CheckIn.findOne({ habitId, logicalDate, slotIndex: slotIdx });
+    if (existing) {
       throw new AppError('CONFLICT', 409, 'Already checked in for this slot today');
     }
 
     // Ensure scheduled
-    if (!isHabitScheduledForDate(habit, logicalDate)) {
+    if (!isHabitScheduledForDate(habit.toObject() as any, logicalDate)) {
       throw new AppError('BAD_REQUEST', 400, 'Habit is not scheduled for today');
     }
 
     // Create check-in
-    const checkIn = {
-      _id: uuid(),
+    const checkIn = new CheckIn({
       userId,
       habitId,
       logicalDate,
@@ -45,9 +47,9 @@ export function createCheckIn(req: AuthRequest, res: Response, next: NextFunctio
       note: note || null,
       xpAwarded: BASE_CHECKIN_XP,
       createdAt: new Date().toISOString(),
-    };
+    });
 
-    store.checkIns.push(checkIn);
+    await checkIn.save();
 
     // Update habit stats
     habit.totalCheckIns++;
@@ -61,10 +63,11 @@ export function createCheckIn(req: AuthRequest, res: Response, next: NextFunctio
         habit.longestStreak = habit.currentStreak;
       }
     }
+    await habit.save();
 
     // Award XP
-    const xpResult = awardXP(userId, BASE_CHECKIN_XP);
-    const newBadges = checkBadges(userId);
+    const xpResult = await awardXP(userId, BASE_CHECKIN_XP);
+    const newBadges = await checkBadges(userId);
 
     res.status(201).json({
       success: true,
@@ -81,58 +84,61 @@ export function createCheckIn(req: AuthRequest, res: Response, next: NextFunctio
 }
 
 // GET /api/checkins?habitId=xxx&from=2026-05-01&to=2026-05-18
-export function getCheckIns(req: AuthRequest, res: Response, next: NextFunction) {
+export async function getCheckIns(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const userId = req.user!._id;
-    let results = store.checkIns.filter(c => c.userId === userId);
+    const query: any = { userId };
 
     if (req.query.habitId) {
-      results = results.filter(c => c.habitId === req.query.habitId);
+      query.habitId = req.query.habitId;
     }
-    if (req.query.from) {
-      results = results.filter(c => c.logicalDate >= (req.query.from as string));
-    }
-    if (req.query.to) {
-      results = results.filter(c => c.logicalDate <= (req.query.to as string));
+    if (req.query.from || req.query.to) {
+      query.logicalDate = {};
+      if (req.query.from) query.logicalDate.$gte = req.query.from;
+      if (req.query.to) query.logicalDate.$lte = req.query.to;
     }
 
-    results.sort((a, b) => b.logicalDate.localeCompare(a.logicalDate));
+    const results = await CheckIn.find(query).sort({ logicalDate: -1 });
     res.json({ success: true, data: results });
   } catch (err) { next(err); }
 }
 
 // PATCH /api/checkins/:id/note
-export function updateNote(req: AuthRequest, res: Response, next: NextFunction) {
+export async function updateNote(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const checkIn = store.checkIns.find(c => c._id === req.params.id && c.userId === req.user!._id);
+    const checkIn = await CheckIn.findOne({ _id: req.params.id, userId: req.user!._id });
     if (!checkIn) throw new AppError('NOT_FOUND', 404, 'Check-in not found');
 
     checkIn.note = req.body.note || null;
+    await checkIn.save();
     res.json({ success: true, data: checkIn });
   } catch (err) { next(err); }
 }
 
 // DELETE /api/checkins/:id  (undo)
-export function undoCheckIn(req: AuthRequest, res: Response, next: NextFunction) {
+export async function undoCheckIn(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const userId = req.user!._id;
-    const idx = store.checkIns.findIndex(c => c._id === req.params.id && c.userId === userId);
-    if (idx === -1) throw new AppError('NOT_FOUND', 404, 'Check-in not found');
-
-    const checkIn = store.checkIns[idx];
+    
+    const checkIn = await CheckIn.findOne({ _id: req.params.id, userId });
+    if (!checkIn) throw new AppError('NOT_FOUND', 404, 'Check-in not found');
 
     // Remove XP
-    const user = store.findUserById(userId)!;
-    user.xp = Math.max(0, user.xp - checkIn.xpAwarded);
+    const user = await User.findById(userId);
+    if (user) {
+      user.xp = Math.max(0, user.xp - checkIn.xpAwarded);
+      await user.save();
+    }
 
     // Decrement habit stats
-    const habit = store.findHabitById(checkIn.habitId);
+    const habit = await Habit.findById(checkIn.habitId);
     if (habit) {
       habit.totalCheckIns = Math.max(0, habit.totalCheckIns - 1);
       habit.currentStreak = Math.max(0, habit.currentStreak - 1);
+      await habit.save();
     }
 
-    store.checkIns.splice(idx, 1);
+    await CheckIn.findByIdAndDelete(checkIn._id);
     res.json({ success: true, data: { message: 'Check-in undone' } });
   } catch (err) { next(err); }
 }
