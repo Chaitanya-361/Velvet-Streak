@@ -45,6 +45,7 @@ export async function getDashboard(req: AuthRequest, res: Response, next: NextFu
         ...habit.toObject(),
         todayStatus,
         todayProgress: todayCheckIns.length,
+        todayCheckInId: todayCheckIns.length > 0 ? todayCheckIns[0]._id : null,
         weeklyProgress: 0, // Simplified to avoid N+1 queries. Can be enhanced later.
       };
     });

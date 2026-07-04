@@ -13,7 +13,6 @@ interface User {
     timezone: string;
     dayBoundaryTime: string;
     weekStartDay: 'MON' | 'SUN';
-    theme: 'dark' | 'light';
   };
   badgesEarned: { badgeKey: string; earnedAt: string }[];
   createdAt: string;

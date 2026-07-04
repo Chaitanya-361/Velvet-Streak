@@ -70,14 +70,13 @@ export async function updateSettings(req: AuthRequest, res: Response, next: Next
     const user = await User.findById(req.user!._id);
     if (!user) throw new AppError('NOT_FOUND', 404, 'User not found');
 
-    const { timezone, dayBoundaryTime, weekStartDay, theme } = req.body;
+    const { timezone, dayBoundaryTime, weekStartDay } = req.body;
     
     // Create a new preferences object to ensure Mongoose detects the change properly, 
     // or just set individual fields since it's defined in the schema.
     if (timezone !== undefined) user.preferences.timezone = timezone;
     if (dayBoundaryTime !== undefined) user.preferences.dayBoundaryTime = dayBoundaryTime;
     if (weekStartDay !== undefined) user.preferences.weekStartDay = weekStartDay;
-    if (theme !== undefined) user.preferences.theme = theme;
     
     // Explicitly mark modified if nested
     user.markModified('preferences');

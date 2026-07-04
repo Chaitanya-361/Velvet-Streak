@@ -26,7 +26,7 @@ export default function ProfilePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="py-20 text-center text-vs-muted animate-fade-in"><div className="text-4xl mb-4 animate-float">🦚</div>Loading profile...</div>;
+  if (loading) return <div className="py-20 text-center text-vs-muted font-medium animate-fade-in"><div className="text-4xl mb-4 animate-float">🦚</div>Loading profile...</div>;
 
   const level = profile?.level || user?.level || 1;
   const xp = profile?.xp || user?.xp || 0;
@@ -35,39 +35,41 @@ export default function ProfilePage() {
   const earnedCount = badges.filter((b: any) => b.earned).length;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
+    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in pb-20">
       {/* Header */}
-      <div className="rounded-2xl bg-vs-surface border border-vs-border p-6 text-center">
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-vs-gold to-vs-feather mx-auto flex items-center justify-center text-5xl mb-4 shadow-lg shadow-vs-teal/20">🦚</div>
+      <div className="rounded-2xl bg-vs-surface border border-vs-border p-8 text-center shadow-sm">
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-vs-teal/10 to-vs-feather/20 mx-auto flex items-center justify-center text-5xl mb-4 shadow-sm border border-vs-teal text-white">🦚</div>
         <h1 className="font-heading font-bold text-2xl text-vs-text">{profile?.displayName || user?.displayName}</h1>
-        <p className="text-sm text-vs-muted">@{profile?.username || user?.username}</p>
-        {profile?.bio && <p className="text-sm text-vs-text/70 mt-2 max-w-md mx-auto">{profile.bio}</p>}
+        <p className="text-sm font-medium text-vs-muted mt-1">@{profile?.username || user?.username}</p>
+        {profile?.bio && <p className="text-sm font-medium text-vs-text/80 mt-3 max-w-md mx-auto">{profile.bio}</p>}
       </div>
 
       {/* XP */}
-      <div className="rounded-2xl bg-vs-surface border border-vs-border p-5">
-        <XPProgressBar currentXP={xp} levelStartXP={LEVEL_THRESHOLDS[level - 1] || 0} levelEndXP={LEVEL_THRESHOLDS[level] || 35000} level={level} title={LEVEL_TITLES[level - 1]} />
+      <div className="rounded-2xl bg-vs-surface border border-vs-border p-6 shadow-sm">
+        <XPProgressBar currentXP={xp} levelStartXP={LEVEL_THRESHOLDS[level - 1] || 0} levelEndXP={LEVEL_THRESHOLDS[level] || 35000} level={level} title={LEVEL_TITLES[level - 1]} size="lg" />
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
         {[
-          { icon: TrendingUp, label: 'Check-ins', value: totalCheckIns, color: 'text-vs-feather' },
-          { icon: Flame, label: 'Best Streak', value: longestStreak, color: 'text-vs-gold' },
-          { icon: Trophy, label: 'Habits', value: habits.length, color: 'text-vs-emerald' },
-          { icon: Award, label: 'Badges', value: `${earnedCount}/${badges.length}`, color: 'text-vs-rose' },
+          { icon: TrendingUp, label: 'Check-ins', value: totalCheckIns, color: 'text-vs-teal', bg: 'bg-vs-teal/10' },
+          { icon: Flame, label: 'Best Streak', value: longestStreak, color: 'text-vs-gold', bg: 'bg-vs-gold/10' },
+          { icon: Trophy, label: 'Habits', value: habits.length, color: 'text-vs-emerald', bg: 'bg-vs-emerald/10' },
+          { icon: Award, label: 'Badges', value: `${earnedCount}/${badges.length}`, color: 'text-vs-rose', bg: 'bg-vs-rose/10' },
         ].map(s => (
-          <div key={s.label} className="rounded-2xl bg-vs-surface border border-vs-border p-4 text-center card-hover">
-            <s.icon className={`w-5 h-5 mx-auto mb-2 ${s.color}`} />
-            <p className="text-xl font-heading font-bold text-vs-text">{s.value}</p>
-            <p className="text-xs text-vs-muted">{s.label}</p>
+          <div key={s.label} className="rounded-2xl bg-vs-surface border border-vs-border p-5 text-center shadow-sm card-hover hover:border-vs-teal/30">
+            <div className={`w-10 h-10 rounded-full mx-auto flex items-center justify-center mb-3 ${s.bg}`}>
+              <s.icon className={`w-5 h-5 ${s.color}`} />
+            </div>
+            <p className="text-2xl font-heading font-bold text-vs-text">{s.value}</p>
+            <p className="text-xs font-semibold text-vs-muted mt-1 uppercase tracking-wider">{s.label}</p>
           </div>
         ))}
       </div>
 
       {/* Badges */}
-      <div className="rounded-2xl bg-vs-surface border border-vs-border p-5">
-        <h2 className="font-heading font-semibold text-vs-text mb-4 flex items-center gap-2"><Award className="w-5 h-5 text-vs-gold" />Badges</h2>
+      <div className="rounded-2xl bg-vs-surface border border-vs-border p-6 shadow-sm">
+        <h2 className="font-heading font-bold text-vs-text mb-6 flex items-center gap-2 text-xl"><Award className="w-5 h-5 text-vs-gold" />Badges</h2>
         <BadgeGrid badges={badges.map((b: any) => ({
           key: b.key,
           name: b.name,
@@ -81,19 +83,19 @@ export default function ProfilePage() {
 
       {/* Habits Table */}
       {habits.length > 0 && (
-        <div className="rounded-2xl bg-vs-surface border border-vs-border p-5">
-          <h2 className="font-heading font-semibold text-vs-text mb-4 flex items-center gap-2"><Calendar className="w-5 h-5 text-vs-feather" />Your Habits</h2>
-          <div className="space-y-3">
+        <div className="rounded-2xl bg-vs-surface border border-vs-border p-6 shadow-sm">
+          <h2 className="font-heading font-bold text-vs-text mb-6 flex items-center gap-2 text-xl"><Calendar className="w-5 h-5 text-vs-teal" />Your Habits</h2>
+          <div className="space-y-4">
             {habits.map((h: any) => (
-              <div key={h._id} className="flex items-center gap-3 p-3 rounded-xl bg-vs-deep">
-                <div className="w-10 h-10 rounded-lg flex items-center justify-center text-xl" style={{ backgroundColor: `${h.color}20` }}>{h.icon}</div>
+              <div key={h._id} className="flex items-center gap-4 p-4 rounded-xl bg-vs-bg border border-vs-border/50 shadow-sm">
+                <div className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl border border-vs-border/50 bg-white shadow-sm">{h.icon}</div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-vs-text">{h.name}</p>
-                  <p className="text-xs text-vs-muted">{h.category} · {h.habitType}</p>
+                  <p className="text-base font-bold text-vs-text mb-1">{h.name}</p>
+                  <p className="text-[11px] font-bold text-vs-muted uppercase tracking-wider">{h.category} · {h.habitType}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-sm font-mono text-vs-gold flex items-center gap-1"><Flame className="w-3 h-3" />{h.currentStreak}</p>
-                  <p className="text-xs text-vs-muted">{h.totalCheckIns} total</p>
+                  <p className="text-sm font-bold text-vs-gold flex items-center justify-end gap-1"><Flame className="w-4 h-4" />{h.currentStreak}</p>
+                  <p className="text-xs font-semibold text-vs-muted mt-1">{h.totalCheckIns} check-ins</p>
                 </div>
               </div>
             ))}

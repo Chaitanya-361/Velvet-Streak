@@ -22,7 +22,6 @@ const UserSchema = new Schema<IUserDocument>(
       timezone: { type: String, default: 'UTC' },
       dayBoundaryTime: { type: String, default: '00:00' },
       weekStartDay: { type: String, enum: ['MON', 'SUN'], default: 'MON' },
-      theme: { type: String, enum: ['light', 'dark'], default: 'dark' },
     },
     refreshTokens: [
       {

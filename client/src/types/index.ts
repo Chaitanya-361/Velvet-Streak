@@ -5,7 +5,6 @@ export type DayOfWeek = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
 export type TodoPriority = 'critical' | 'high' | 'medium' | 'low';
 export type TodoView = 'today' | 'upcoming' | 'all' | 'completed';
 export type DayState = 'completed' | 'missed' | 'not_scheduled' | 'rest_day' | 'today_pending' | 'future';
-export type Theme = 'dark' | 'light';
 
 export interface Schedule {
   type: ScheduleType;
@@ -92,7 +91,6 @@ export interface UserProfile {
     timezone: string;
     dayBoundaryTime: string;
     weekStartDay: 'MON' | 'SUN';
-    theme: Theme;
   };
   createdAt: string;
 }

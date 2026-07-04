@@ -3,35 +3,19 @@
 @tailwind utilities;
 
 :root {
-  --vs-deep: #003D40;
-  --vs-teal: #00838F;
-  --vs-blue: #006064;
-  --vs-gold: #FFD54F;
-  --vs-feather: #4DD0E1;
-  --vs-emerald: #00C853;
-  --vs-rose: #F48FB1;
-  --vs-surface: #1A2E35;
-  --vs-text: #E0F7FA;
-  --vs-muted: #80CBC4;
-  --vs-surface-hover: #243B44;
-  --vs-border: #2A4A54;
-  --vs-bg: #003D40;
-}
-
-.light {
-  --vs-deep: #F5F5F0;
-  --vs-teal: #00838F;
-  --vs-blue: #006064;
-  --vs-gold: #F9A825;
-  --vs-feather: #00838F;
-  --vs-emerald: #00C853;
-  --vs-rose: #E91E63;
+  --vs-bg: #F8F9FA;
   --vs-surface: #FFFFFF;
-  --vs-text: #1A2E35;
-  --vs-muted: #607D8B;
-  --vs-surface-hover: #F0F4F5;
-  --vs-border: #E0E0E0;
-  --vs-bg: #F5F5F0;
+  --vs-surface-hover: #F1F5F9;
+  --vs-border: #E2E8F0;
+  --vs-text: #0F172A;
+  --vs-muted: #64748B;
+  --vs-teal: #006064;
+  --vs-feather: #00838F;
+  --vs-deep: #F8F9FA; /* Mapped to bg for compatibility */
+  --vs-blue: #0284C7;
+  --vs-gold: #F59E0B;
+  --vs-emerald: #10B981;
+  --vs-rose: #F43F5E;
 }
 
 * {

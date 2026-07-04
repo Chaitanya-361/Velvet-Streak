@@ -53,7 +53,6 @@ export async function register(req: Request, res: Response, next: NextFunction) 
         timezone: 'UTC',
         dayBoundaryTime: '03:00',
         weekStartDay: 'MON',
-        theme: 'dark',
       },
       refreshTokens: [],
       isEmailVerified: true, // auto-verified for dev

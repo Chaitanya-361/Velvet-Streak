@@ -1,6 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { AppError, AuthRequest } from '../types';
-import { getCurrentLogicalDate } from '../services/dayBoundary.service';
+import { getCurrentLogicalDate, formatDate } from '../services/dayBoundary.service';
 import { isHabitScheduledForDate } from '../services/scheduling.service';
 import { awardXP, checkBadges } from '../services/gamification.service';
 import { User } from '../models/User';
@@ -51,18 +51,54 @@ export async function createCheckIn(req: AuthRequest, res: Response, next: NextF
 
     await checkIn.save();
 
+    const prevLastCheckIn = habit.lastCheckInLogicalDate;
+
     // Update habit stats
     habit.totalCheckIns++;
-    habit.lastCheckInLogicalDate = logicalDate;
     habit.updatedAt = new Date().toISOString();
 
-    // Update streak (simplified)
-    if (!habit.lastCheckInLogicalDate || logicalDate >= habit.lastCheckInLogicalDate) {
-      habit.currentStreak++;
-      if (habit.currentStreak > habit.longestStreak) {
-        habit.longestStreak = habit.currentStreak;
+    let streakBroken = false;
+    let sameDay = false;
+
+    if (prevLastCheckIn) {
+      if (prevLastCheckIn === logicalDate) {
+        sameDay = true;
+      } else {
+        const prevDate = new Date(prevLastCheckIn);
+        const currDate = new Date(logicalDate);
+        const diffDays = Math.round((currDate.getTime() - prevDate.getTime()) / 86400000);
+        
+        if (diffDays > 1) {
+          let scheduledDayFound = false;
+          for (let i = 1; i < diffDays; i++) {
+            const d = new Date(prevDate.getTime() + i * 86400000);
+            if (isHabitScheduledForDate(habit.toObject() as any, formatDate(d))) {
+              scheduledDayFound = true;
+              break;
+            }
+          }
+          if (scheduledDayFound) {
+            streakBroken = true;
+          }
+        }
       }
     }
+
+    if (!prevLastCheckIn) {
+      habit.currentStreak = 1;
+    } else if (sameDay) {
+      // do not increment streak again for multiple check-ins today
+    } else if (streakBroken) {
+      habit.currentStreak = 1;
+    } else {
+      habit.currentStreak++;
+    }
+
+    if (habit.currentStreak > habit.longestStreak) {
+      habit.longestStreak = habit.currentStreak;
+    }
+
+    habit.lastCheckInLogicalDate = logicalDate;
     await habit.save();
 
     // Award XP

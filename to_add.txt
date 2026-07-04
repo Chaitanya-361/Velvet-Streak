@@ -1,0 +1,31 @@
+A habit tracker with:
+
+JWT authentication
+OAuth
+Email verification
+Password reset
+Responsive UI
+Charts and analytics
+Docker
+CI/CD
+AWS deployment
+Redis caching
+Background jobs
+Rate limiting
+Testing
+Logging
+
+Email verification
+Password reset
+OAuth (Google login)
+Recurring habits
+Daily reminders (cron jobs)
+Streak calculation
+Dark mode
+Docker support
+Deployment (AWS/Railway/Render)
+Unit/integration tests
+Rate limiting
+Request validation
+Logging
+CI/CD with GitHub Actions

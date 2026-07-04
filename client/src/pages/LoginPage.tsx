@@ -29,36 +29,38 @@ export default function LoginPage() {
   return (
     <div>
       <h2 className="font-heading font-bold text-2xl text-vs-text mb-1">Welcome back</h2>
-      <p className="text-sm text-vs-muted mb-6">Sign in to continue your streaks</p>
+      <p className="text-sm font-medium text-vs-muted mb-6">Sign in to continue your streaks</p>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label htmlFor="login-email" className="block text-sm font-medium text-vs-text mb-1.5">Email</label>
+          <label htmlFor="login-email" className="block text-sm font-bold text-vs-text mb-1.5">Email</label>
           <input id="login-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@example.com"
-            className="w-full px-4 py-3 rounded-xl bg-vs-deep border border-vs-border text-vs-text placeholder-vs-muted/50 focus:border-vs-feather focus:ring-1 focus:ring-vs-feather transition-colors" required />
+            className="w-full px-4 py-3.5 rounded-xl bg-vs-bg border border-vs-border shadow-sm text-vs-text placeholder-vs-muted focus:border-vs-teal focus:ring-1 focus:ring-vs-teal transition-colors font-medium" required />
         </div>
         <div>
           <div className="flex justify-between mb-1.5">
-            <label htmlFor="login-password" className="block text-sm font-medium text-vs-text">Password</label>
+            <label htmlFor="login-password" className="block text-sm font-bold text-vs-text">Password</label>
           </div>
           <div className="relative">
             <input id="login-password" type={showPassword ? 'text' : 'password'} value={password} onChange={e => setPassword(e.target.value)} placeholder="••••••••"
-              className="w-full px-4 py-3 rounded-xl bg-vs-deep border border-vs-border text-vs-text placeholder-vs-muted/50 focus:border-vs-feather focus:ring-1 focus:ring-vs-feather transition-colors pr-12" required />
-            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-vs-muted hover:text-vs-feather transition-colors">
-              {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              className="w-full px-4 py-3.5 rounded-xl bg-vs-bg border border-vs-border shadow-sm text-vs-text placeholder-vs-muted focus:border-vs-teal focus:ring-1 focus:ring-vs-teal transition-colors pr-12 font-medium" required />
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-lg text-vs-muted hover:text-vs-teal hover:bg-vs-surface transition-colors">
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
           </div>
         </div>
-        <button type="submit" disabled={loading}
-          className="w-full py-3 rounded-xl bg-gradient-to-r from-vs-teal to-vs-feather text-white font-semibold flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-vs-teal/30 transition-all duration-300 hover:translate-y-[-1px] active:translate-y-0 disabled:opacity-50">
-          <LogIn className="w-4 h-4" />
-          {loading ? 'Signing in...' : 'Sign In'}
-        </button>
+        <div className="pt-2">
+          <button type="submit" disabled={loading}
+            className="w-full py-4 rounded-xl bg-vs-teal text-white font-bold text-base flex items-center justify-center gap-2 hover:shadow-lg hover:shadow-vs-teal/30 hover:bg-vs-teal/90 transition-all duration-300 disabled:opacity-50">
+            <LogIn className="w-5 h-5" />
+            {loading ? 'Signing in...' : 'Sign In'}
+          </button>
+        </div>
       </form>
 
-      <p className="text-center text-sm text-vs-muted mt-6">
+      <p className="text-center text-sm font-medium text-vs-muted mt-6">
         Don't have an account?{' '}
-        <Link to="/register" className="text-vs-feather hover:text-vs-gold font-medium transition-colors">Sign up</Link>
+        <Link to="/register" className="text-vs-teal hover:text-vs-teal/80 font-bold transition-colors">Sign up</Link>
       </p>
     </div>
   );

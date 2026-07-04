@@ -3,7 +3,6 @@ export type HabitCategory = 'Fitness' | 'Creative' | 'Learning' | 'Wellness' | '
 export type ScheduleType = 'daily' | 'specific_days' | 'times_per_week' | 'interval' | 'times_per_day' | 'times_per_month';
 export type DayOfWeek = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
 export type TodoPriority = 'critical' | 'high' | 'medium' | 'low';
-export type Theme = 'dark' | 'light';
 
 export interface User {
   _id: string;
@@ -19,7 +18,6 @@ export interface User {
     timezone: string;
     dayBoundaryTime: string;
     weekStartDay: 'MON' | 'SUN';
-    theme: Theme;
   };
   refreshTokens: { tokenHash: string; device: string; createdAt: string; expiresAt: string }[];
   isEmailVerified: boolean;

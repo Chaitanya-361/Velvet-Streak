@@ -26,7 +26,7 @@ export async function updateProfile(data: { displayName?: string; bio?: string; 
   return res.data;
 }
 
-export async function updateSettings(data: { timezone?: string; dayBoundaryTime?: string; weekStartDay?: string; theme?: string }) {
+export async function updateSettings(data: { timezone?: string; dayBoundaryTime?: string; weekStartDay?: string }) {
   const res = await api('/users/settings', { method: 'PATCH', body: data });
   return res.data;
 }
