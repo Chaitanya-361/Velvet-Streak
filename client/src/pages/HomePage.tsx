@@ -5,19 +5,10 @@ import XPProgressBar from '../components/XPProgressBar';
 import { useAuth } from '../context/AuthContext';
 import { fetchDashboard } from '../api/stats';
 import toast from 'react-hot-toast';
-
-const motivationalQuotes = [
-  "Every day is a chance to build something great. 🦚",
-  "Small steps lead to giant leaps. Keep going! 💪",
-  "Consistency is the mother of mastery. 🔥",
-  "Your streaks tell the story of your discipline. ✨",
-  "The peacock's beauty comes from patience. So does yours. 🌟",
-  "One more day, one more step closer to your goals. 🎯",
-  "Don't break the chain. You're doing amazing! 🏆",
-];
+import { motivationalQuotes } from '../data/quotes';
 
 const LEVEL_THRESHOLDS = [0, 200, 500, 1000, 2000, 4000, 7000, 12000, 20000, 35000];
-const LEVEL_TITLES = ['Hatchling','Fledgling','Feathered','Preening','Strutter','Plume Bearer','Iridescent','Crowned','Resplendent','Grand Peacock'];
+const LEVEL_TITLES = ['Hatchling', 'Fledgling', 'Feathered', 'Preening', 'Strutter', 'Plume Bearer', 'Iridescent', 'Crowned', 'Resplendent', 'Grand Peacock'];
 
 export default function HomePage() {
   const { user, refreshUser } = useAuth();
@@ -43,7 +34,7 @@ export default function HomePage() {
   const completedToday = habits.filter((h: any) => h.todayStatus === 'completed');
   const notScheduled = habits.filter((h: any) => h.todayStatus === 'not_scheduled' || h.todayStatus === 'rest_day');
 
-  const quote = useMemo(() => motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)], []);
+  const quote = useMemo(() => motivationalQuotes.length > 0 ? motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)] : { text: "Add some quotes!", author: "You" }, []);
   const longestStreak = habits.length > 0 ? Math.max(...habits.map((h: any) => h.currentStreak || 0)) : 0;
   const habitsOnStreak = habits.filter((h: any) => (h.currentStreak || 0) >= 7).length;
 
@@ -65,7 +56,7 @@ export default function HomePage() {
       <div className="rounded-2xl bg-[#EEF2F6] border border-vs-border/50 py-4 px-6 flex items-center justify-center text-center">
         <p className="text-[15px] text-vs-text font-medium flex items-center gap-2">
           <Sparkles className="w-4 h-4 text-vs-teal" />
-          {quote}
+          {quote?.text} <sub className="text-vs-muted font-normal italic ml-1 inline-block translate-y-[2px]">~ {quote?.author}</sub>
         </p>
       </div>
 
