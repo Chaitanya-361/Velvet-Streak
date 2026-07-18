@@ -8,7 +8,7 @@ const LEVEL_TITLES = [
   'Hatchling', 'Fledgling', 'Feathered', 'Preening', 'Strutter',
   'Plume Bearer', 'Iridescent', 'Crowned', 'Resplendent', 'Grand Peacock',
 ];
-const LEVEL_THRESHOLDS = [0, 200, 500, 1000, 2000, 4000, 7000, 12000, 20000, 35000];
+
 
 const navItems = [
   { to: '/', icon: Home, label: 'Home' },

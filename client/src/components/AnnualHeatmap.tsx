@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { format, eachDayOfInterval, startOfYear, getDay } from 'date-fns';
+import { format, eachDayOfInterval, getDay } from 'date-fns';
 import type { HeatmapDay } from '../types';
 
 interface AnnualHeatmapProps {
