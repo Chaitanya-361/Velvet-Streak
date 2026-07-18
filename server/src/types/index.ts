@@ -109,6 +109,16 @@ export interface Badge {
   xpReward: number;
 }
 
+export interface ZenSession {
+  _id: string;
+  userId: string;
+  startedAt: string;
+  endedAt: string;
+  durationSeconds: number;
+  logicalDate: string;
+  createdAt: string;
+}
+
 // Express extension
 import { Request } from 'express';
 export interface AuthRequest extends Request {

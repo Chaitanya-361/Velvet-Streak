@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Trash2, CheckCircle, Circle, ListChecks } from 'lucide-react';
 import { fetchTodos, createTodo, deleteTodo, toggleTodoComplete, toggleSubtask } from '../api/todos';
+import CustomSelect from '../components/CustomSelect';
+import DatePicker from '../components/DatePicker';
 import toast from 'react-hot-toast';
 
 type Tab = 'today' | 'upcoming' | 'all' | 'completed';
@@ -101,13 +103,21 @@ export default function TodoPage() {
           <h3 className="font-heading font-bold text-lg text-vs-text">New Task</h3>
           <input type="text" value={newTodo.title} onChange={e => setNewTodo(p => ({ ...p, title: e.target.value }))} placeholder="Task title" className="w-full px-4 py-3 rounded-xl bg-vs-bg border border-vs-border text-vs-text placeholder-vs-muted focus:border-vs-teal" />
           <div className="grid grid-cols-2 gap-4">
-            <input type="date" value={newTodo.deadline} onChange={e => setNewTodo(p => ({ ...p, deadline: e.target.value }))} className="px-4 py-3 rounded-xl bg-vs-bg border border-vs-border text-vs-text focus:border-vs-teal" />
-            <select value={newTodo.priority} onChange={e => setNewTodo(p => ({ ...p, priority: e.target.value }))} className="px-4 py-3 rounded-xl bg-vs-bg border border-vs-border text-vs-text focus:border-vs-teal font-medium">
-              <option value="low">Low Priority</option>
-              <option value="medium">Medium Priority</option>
-              <option value="high">High Priority</option>
-              <option value="critical">Critical</option>
-            </select>
+            <DatePicker 
+              value={newTodo.deadline} 
+              onChange={val => setNewTodo(p => ({ ...p, deadline: val }))} 
+              placeholder="Select deadline" 
+            />
+            <CustomSelect 
+              value={newTodo.priority} 
+              onChange={val => setNewTodo(p => ({ ...p, priority: val }))} 
+              options={[
+                { value: 'low', label: 'Low Priority' },
+                { value: 'medium', label: 'Medium Priority' },
+                { value: 'high', label: 'High Priority' },
+                { value: 'critical', label: 'Critical' }
+              ]} 
+            />
           </div>
           <div className="flex justify-end gap-3 pt-2">
             <button onClick={() => setShowAdd(false)} className="px-5 py-2.5 rounded-full text-sm font-semibold text-vs-muted hover:text-vs-text hover:bg-vs-surface-hover">Cancel</button>

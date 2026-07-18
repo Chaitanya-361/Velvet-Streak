@@ -15,6 +15,7 @@ import checkinRoutes from './routes/checkin.routes';
 import restdayRoutes from './routes/restday.routes';
 import todoRoutes from './routes/todo.routes';
 import statsRoutes from './routes/stats.routes';
+import zenRoutes from './routes/zen.routes';
 
 export function createApp() {
   const app = express();
@@ -63,6 +64,7 @@ export function createApp() {
   app.use('/api/restdays', restdayRoutes);
   app.use('/api/todos', todoRoutes);
   app.use('/api/stats', statsRoutes);
+  app.use('/api/zen', zenRoutes);
 
   // 404
   app.use((_req, res) => {

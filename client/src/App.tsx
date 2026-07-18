@@ -12,6 +12,7 @@ import ProfilePage from './pages/ProfilePage';
 import HabitDetailPage from './pages/HabitDetailPage';
 import HabitWizardPage from './pages/HabitWizardPage';
 import SettingsPage from './pages/SettingsPage';
+import ZenModePage from './pages/ZenModePage';
 
 function AppRoutes() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -44,6 +45,7 @@ function AppRoutes() {
         <Route path="habits/new" element={<HabitWizardPage />} />
         <Route path="habits/:id" element={<HabitDetailPage />} />
         <Route path="settings" element={<SettingsPage />} />
+        <Route path="zen" element={<ZenModePage />} />
       </Route>
 
       {/* Catch-all */}

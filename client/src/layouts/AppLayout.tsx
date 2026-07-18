@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Outlet, NavLink, useLocation } from 'react-router-dom';
-import { Home, BarChart3, CheckSquare, User, Settings, Menu, X, Feather } from 'lucide-react';
+import { Home, BarChart3, CheckSquare, User, Settings, Menu, X, Feather, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import FAB from '../components/FAB';
 
@@ -14,6 +14,7 @@ const navItems = [
   { to: '/', icon: Home, label: 'Home' },
   { to: '/stats', icon: BarChart3, label: 'Stats' },
   { to: '/todos', icon: CheckSquare, label: 'To-Do' },
+  { to: '/zen', icon: Sparkles, label: 'Zen' },
   { to: '/profile', icon: User, label: 'Profile' },
   { to: '/settings', icon: Settings, label: 'Settings' },
 ];
@@ -31,8 +32,8 @@ export default function AppLayout() {
       {/* Sidebar - Desktop */}
       <aside className="hidden lg:flex flex-col w-64 border-r border-vs-border bg-vs-surface">
         <div className="flex items-center gap-3 px-8 py-10">
-          <div className="w-10 h-10 rounded-xl bg-vs-teal/10 flex items-center justify-center">
-            <Feather className="w-5 h-5 text-vs-teal" />
+          <div className="w-10 h-10 rounded-xl bg-vs-teal flex items-center justify-center shadow-md shadow-vs-teal/20">
+            <Feather className="w-5 h-5 text-white" />
           </div>
           <div>
             <h1 className="font-heading font-bold text-lg text-vs-text leading-tight">Velvet<br/>Streak</h1>
@@ -70,7 +71,7 @@ export default function AppLayout() {
           <aside className="relative z-50 w-72 bg-vs-surface border-r border-vs-border flex flex-col animate-fade-in">
             <div className="flex items-center justify-between px-6 py-5 border-b border-vs-border">
               <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-vs-teal/10 flex items-center justify-center"><Feather className="w-4 h-4 text-vs-teal" /></div>
+                <div className="w-9 h-9 rounded-xl bg-vs-teal flex items-center justify-center shadow-md shadow-vs-teal/20"><Feather className="w-4 h-4 text-white" /></div>
                 <h1 className="font-heading font-bold text-vs-text">Velvet Streak</h1>
               </div>
               <button onClick={() => setSidebarOpen(false)} className="p-1 text-vs-muted hover:text-vs-text"><X className="w-5 h-5" /></button>

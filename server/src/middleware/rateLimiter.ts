@@ -23,3 +23,12 @@ export const checkinLimiter = rateLimit({
   legacyHeaders: false,
   message: { success: false, error: { code: 'RATE_LIMITED', message: 'Too many check-in requests.' } },
 });
+
+export const zenLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: { code: 'RATE_LIMITED', message: 'Too many zen session requests.' } },
+});
+

@@ -117,3 +117,18 @@ export interface HeatmapDay {
   date: string;
   count: number;
 }
+
+export interface ZenSession {
+  _id: string;
+  startedAt: string;
+  endedAt: string;
+  durationSeconds: number;
+  logicalDate: string;
+  createdAt: string;
+}
+
+export interface ZenWeeklyDay {
+  label: string;
+  date: string;
+  totalSeconds: number;
+}
