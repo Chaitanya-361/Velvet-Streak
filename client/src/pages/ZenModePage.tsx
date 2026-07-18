@@ -99,20 +99,20 @@ export default function ZenModePage() {
   const todayStr = new Date().toISOString().split('T')[0];
 
   // Progress ring calculations
-  const radius = 130;
+  const radius = 105;
   const circumference = 2 * Math.PI * radius;
   // Show a subtle progress ring based on elapsed time (full circle at 60 min)
   const progressFraction = Math.min(elapsed / 3600, 1);
   const strokeDashoffset = circumference * (1 - progressFraction);
 
   return (
-    <div className="max-w-6xl mx-auto animate-fade-in pb-20">
-      <h1 className="font-heading font-bold text-3xl text-vs-text mb-8">Zen Mode</h1>
+    <div className="max-w-6xl mx-auto animate-fade-in">
+      <h1 className="font-heading font-bold text-3xl text-vs-text mb-4">Zen Mode</h1>
 
-      <div className="flex flex-col lg:flex-row gap-8">
+      <div className="flex flex-col lg:flex-row gap-6">
         {/* Main Stopwatch Area */}
         <div className="flex-1">
-          <div className="rounded-3xl bg-vs-surface border border-vs-border shadow-sm p-8 lg:p-12 flex flex-col items-center relative overflow-hidden">
+          <div className="rounded-3xl bg-vs-surface border border-vs-border shadow-sm p-6 lg:p-8 flex flex-col items-center relative overflow-hidden">
             {/* Ambient background glow when active */}
             {isRunning && (
               <div className="absolute inset-0 pointer-events-none">
@@ -123,7 +123,7 @@ export default function ZenModePage() {
             )}
 
             {/* Status label */}
-            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-8 transition-all duration-500 ${
+            <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-sm font-semibold mb-4 transition-all duration-500 ${
               isRunning
                 ? 'bg-vs-teal/10 text-vs-teal border border-vs-teal/20'
                 : 'bg-vs-surface-hover text-vs-muted border border-vs-border'
@@ -133,21 +133,21 @@ export default function ZenModePage() {
             </div>
 
             {/* Circular timer */}
-            <div className="relative mb-10">
-              <svg width="300" height="300" viewBox="0 0 300 300" className="transform -rotate-90">
+            <div className="relative mb-6">
+              <svg width="240" height="240" viewBox="0 0 240 240" className="transform -rotate-90">
                 {/* Background ring */}
                 <circle
-                  cx="150" cy="150" r={radius}
+                  cx="120" cy="120" r={radius}
                   fill="none"
                   stroke="var(--vs-border)"
-                  strokeWidth="6"
+                  strokeWidth="5"
                 />
                 {/* Progress ring */}
                 <circle
-                  cx="150" cy="150" r={radius}
+                  cx="120" cy="120" r={radius}
                   fill="none"
                   stroke="var(--vs-teal)"
-                  strokeWidth="6"
+                  strokeWidth="5"
                   strokeLinecap="round"
                   strokeDasharray={circumference}
                   strokeDashoffset={strokeDashoffset}
@@ -157,10 +157,10 @@ export default function ZenModePage() {
                 {/* Glow effect when running */}
                 {isRunning && (
                   <circle
-                    cx="150" cy="150" r={radius}
+                    cx="120" cy="120" r={radius}
                     fill="none"
                     stroke="var(--vs-teal)"
-                    strokeWidth="12"
+                    strokeWidth="10"
                     strokeLinecap="round"
                     strokeDasharray={circumference}
                     strokeDashoffset={strokeDashoffset}
@@ -172,7 +172,7 @@ export default function ZenModePage() {
 
               {/* Center text */}
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="font-mono text-5xl lg:text-6xl font-bold text-vs-text tracking-tight tabular-nums">
+                <span className="font-mono text-4xl lg:text-5xl font-bold text-vs-text tracking-tight tabular-nums">
                   {formatTime(elapsed)}
                 </span>
                 {isRunning && elapsed > 0 && (
@@ -186,7 +186,7 @@ export default function ZenModePage() {
             {/* Start/Stop button */}
             <button
               onClick={isRunning ? handleStop : handleStart}
-              className={`group flex items-center gap-3 px-10 py-4 rounded-2xl text-lg font-bold transition-all duration-300 shadow-lg ${
+              className={`group flex items-center gap-3 px-8 py-3 rounded-2xl text-base font-bold transition-all duration-300 shadow-lg ${
                 isRunning
                   ? 'bg-vs-rose text-white shadow-vs-rose/25 hover:shadow-vs-rose/40 hover:scale-[1.02] active:scale-[0.98]'
                   : 'bg-vs-teal text-white shadow-vs-teal/25 hover:shadow-vs-teal/40 hover:scale-[1.02] active:scale-[0.98]'
@@ -205,12 +205,6 @@ export default function ZenModePage() {
               )}
             </button>
 
-            {/* Motivational hint */}
-            {!isRunning && elapsed === 0 && (
-              <p className="text-sm text-vs-muted/60 mt-6 text-center max-w-xs animate-fade-in">
-                Tap start to begin a focus session. Minimize distractions and stay in the zone.
-              </p>
-            )}
           </div>
         </div>
 
