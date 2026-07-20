@@ -334,11 +334,6 @@ The app uses a custom design system with CSS custom properties and Tailwind:
 
 ---
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
----
 
 <div align="center">
 

@@ -53,12 +53,12 @@ export default function RegisterPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="reg-display" className="block text-sm font-bold text-vs-text mb-1.5">Display Name</label>
-          <input id="reg-display" type="text" value={form.displayName} onChange={e => update('displayName', e.target.value)} placeholder="Akki"
+          <input id="reg-display" type="text" value={form.displayName} onChange={e => update('displayName', e.target.value)} placeholder="Your Name"
             className="w-full px-4 py-3.5 rounded-xl bg-vs-bg border border-vs-border shadow-sm text-vs-text placeholder-vs-muted focus:border-vs-teal focus:ring-1 focus:ring-vs-teal transition-colors font-medium" required />
         </div>
         <div>
           <label htmlFor="reg-username" className="block text-sm font-bold text-vs-text mb-1.5">Username</label>
-          <input id="reg-username" type="text" value={form.username} onChange={e => update('username', e.target.value)} placeholder="akki_dev"
+          <input id="reg-username" type="text" value={form.username} onChange={e => update('username', e.target.value)} placeholder="Your_name"
             className="w-full px-4 py-3.5 rounded-xl bg-vs-bg border border-vs-border shadow-sm text-vs-text placeholder-vs-muted focus:border-vs-teal focus:ring-1 focus:ring-vs-teal transition-colors font-medium" required minLength={3} maxLength={20} pattern="^[a-zA-Z0-9_]+$" />
           <p className="text-xs font-semibold text-vs-muted/70 mt-1.5">3–20 characters, letters, numbers, underscores</p>
         </div>
