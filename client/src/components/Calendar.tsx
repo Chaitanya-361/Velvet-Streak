@@ -7,7 +7,6 @@ interface CalendarProps {
   habitStartDate?: string;
   checkInDates: Set<string>; // YYYY-MM-DD
   missedDates?: Set<string>;
-  restDayDates?: Set<string>;
   scheduledDates?: Set<string>;
   month?: string; // YYYY-MM
   onMonthChange?: (month: string) => void;
@@ -19,7 +18,6 @@ function getDayState(
   isCurrentMonth: boolean,
   checkIns: Set<string>,
   missed: Set<string>,
-  restDays: Set<string>,
   scheduled: Set<string>,
 ): DayState {
   if (!isCurrentMonth) return 'not_scheduled';
@@ -28,7 +26,6 @@ function getDayState(
     return 'today_pending';
   }
   if (checkIns.has(dateStr)) return 'completed';
-  if (restDays.has(dateStr)) return 'rest_day';
   if (missed.has(dateStr)) return 'missed';
   if (isBefore(new Date(dateStr), new Date())) {
     if (scheduled.has(dateStr)) return 'missed';
@@ -41,12 +38,11 @@ const dayStateStyles: Record<DayState, string> = {
   completed: 'bg-vs-teal text-white shadow-md shadow-vs-teal/30',
   missed: 'bg-vs-rose/20 text-vs-rose border border-vs-rose/30',
   not_scheduled: 'text-vs-muted/30',
-  rest_day: 'bg-vs-muted/10 text-vs-muted',
   today_pending: 'border-2 border-vs-feather text-vs-feather animate-pulse-glow',
   future: 'text-vs-muted/50',
 };
 
-export default function Calendar({ checkInDates, missedDates = new Set(), restDayDates = new Set(), scheduledDates = new Set(), month, onMonthChange, onDayClick }: CalendarProps) {
+export default function Calendar({ checkInDates, missedDates = new Set(), scheduledDates = new Set(), month, onMonthChange, onDayClick }: CalendarProps) {
   const [internalMonth, setInternalMonth] = useState(new Date());
 
   const currentMonth = month ? new Date(month + '-01T00:00:00') : internalMonth;
@@ -72,7 +68,7 @@ export default function Calendar({ checkInDates, missedDates = new Set(), restDa
   };
 
   return (
-    <div className="rounded-2xl bg-vs-surface border border-vs-border p-5">
+    <div className="vs-card p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <button
@@ -104,7 +100,7 @@ export default function Calendar({ checkInDates, missedDates = new Set(), restDa
         {days.map(day => {
           const dateStr = format(day, 'yyyy-MM-dd');
           const isCurrentMo = isSameMonth(day, currentMonth);
-          const state = getDayState(dateStr, isCurrentMo, checkInDates, missedDates, restDayDates, scheduledDates);
+          const state = getDayState(dateStr, isCurrentMo, checkInDates, missedDates, scheduledDates);
 
           return (
             <button
@@ -115,13 +111,7 @@ export default function Calendar({ checkInDates, missedDates = new Set(), restDa
                 state === 'completed' ? 'cursor-pointer hover:scale-110' : ''
               } ${!isCurrentMo ? 'invisible' : ''}`}
             >
-              {isCurrentMo && (
-                state === 'rest_day' ? (
-                  <span className="text-xs">💤</span>
-                ) : (
-                  format(day, 'd')
-                )
-              )}
+              {isCurrentMo && format(day, 'd')}
             </button>
           );
         })}
@@ -131,7 +121,6 @@ export default function Calendar({ checkInDates, missedDates = new Set(), restDa
       <div className="flex flex-wrap items-center gap-4 mt-4 pt-3 border-t border-vs-border">
         <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-vs-teal" /><span className="text-xs text-vs-muted">Completed</span></div>
         <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-vs-rose/30 border border-vs-rose/40" /><span className="text-xs text-vs-muted">Missed</span></div>
-        <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-vs-muted/20" /><span className="text-xs text-vs-muted">Rest</span></div>
         <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full border-2 border-vs-feather" /><span className="text-xs text-vs-muted">Today</span></div>
       </div>
     </div>

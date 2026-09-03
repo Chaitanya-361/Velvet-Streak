@@ -17,7 +17,7 @@ export default function HabitCard({ habit, onCheckIn }: HabitCardProps) {
 
   const isQuantitative = habit.habitType === 'quantitative';
   const isPending = habit.todayStatus === 'pending' || habit.todayStatus === 'completed';
-  const isNotScheduled = habit.todayStatus === 'not_scheduled' || habit.todayStatus === 'rest_day';
+  const isNotScheduled = habit.todayStatus === 'not_scheduled';
 
   const [showModal, setShowModal] = useState(false);
   const [inputValue, setInputValue] = useState('');
@@ -56,7 +56,7 @@ export default function HabitCard({ habit, onCheckIn }: HabitCardProps) {
   const submitCheckIn = async (amount?: number) => {
     setLoading(true);
     try {
-      const result = await createCheckIn(habit._id, 0, amount);
+      const result = await createCheckIn(habit._id, amount);
       setChecked(true);
       if (result.newBadges?.length > 0) {
         toast.success(`🦚 Badge unlocked: ${result.newBadges.join(', ')}!`, { duration: 4000 });

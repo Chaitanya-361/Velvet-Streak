@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Flame, Trophy, Moon, Trash2 } from 'lucide-react';
+import { ArrowLeft, Flame, Trophy, Trash2 } from 'lucide-react';
 import { fetchHabit, fetchHabitCalendar, deleteHabit } from '../api/habits';
 import { fetchCheckIns } from '../api/habits';
 import Calendar from '../components/Calendar';
@@ -46,7 +46,6 @@ export default function HabitDetailPage() {
   if (!habit) return null;
 
   const checkedDates = new Set<string>(calendar?.checkInDates || []);
-  const restDates = new Set<string>(calendar?.restDayDates || []);
 
   const weeklyProgress = habit.habitType === 'quantitative' && habit.quantitative ? (() => {
     const weekCIs = recentCheckIns.filter(c => {
@@ -61,7 +60,7 @@ export default function HabitDetailPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6 animate-fade-in pb-20">
       {/* Header */}
-      <div className="flex items-center gap-4 bg-vs-surface p-4 rounded-2xl border border-vs-border shadow-sm">
+      <div className="vs-card flex items-center gap-4 p-4">
         <button onClick={() => navigate('/')} className="p-2 rounded-xl text-vs-muted hover:text-vs-teal hover:bg-vs-teal/10 transition-colors"><ArrowLeft className="w-5 h-5" /></button>
         <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-vs-border/50 bg-white">{habit.icon}</div>
         <div className="flex-1">
@@ -72,33 +71,26 @@ export default function HabitDetailPage() {
       </div>
 
       {/* Stats Row */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="rounded-2xl bg-vs-surface border border-vs-border p-5 text-center shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-vs-gold/10 mx-auto flex items-center justify-center mb-3">
+      <div className="grid grid-cols-2 gap-4">
+        <div className="vs-card p-5 text-center">
+          <div className="vs-stat-icon bg-vs-gold/10 mx-auto mb-3">
             <Flame className="w-5 h-5 text-vs-gold" />
           </div>
           <p className="text-2xl font-heading font-bold text-vs-text">{habit.currentStreak}</p>
           <p className="text-[11px] font-bold text-vs-muted uppercase tracking-wider mt-1">Current Streak</p>
         </div>
-        <div className="rounded-2xl bg-vs-surface border border-vs-border p-5 text-center shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-vs-emerald/10 mx-auto flex items-center justify-center mb-3">
+        <div className="vs-card p-5 text-center">
+          <div className="vs-stat-icon bg-vs-emerald/10 mx-auto mb-3">
             <Trophy className="w-5 h-5 text-vs-emerald" />
           </div>
           <p className="text-2xl font-heading font-bold text-vs-text">{habit.longestStreak}</p>
           <p className="text-[11px] font-bold text-vs-muted uppercase tracking-wider mt-1">Longest Streak</p>
         </div>
-        <div className="rounded-2xl bg-vs-surface border border-vs-border p-5 text-center shadow-sm">
-          <div className="w-10 h-10 rounded-full bg-vs-teal/10 mx-auto flex items-center justify-center mb-3">
-            <Moon className="w-5 h-5 text-vs-teal" />
-          </div>
-          <p className="text-2xl font-heading font-bold text-vs-text">{habit.restDayConfig.allowed ? `${habit.restDayConfig.maxPerWeek}/wk` : '—'}</p>
-          <p className="text-[11px] font-bold text-vs-muted uppercase tracking-wider mt-1">Rest Days</p>
-        </div>
       </div>
 
       {/* Weekly Progress (quantitative) */}
       {habit.habitType === 'quantitative' && habit.quantitative && (
-        <div className="rounded-2xl bg-vs-surface border border-vs-border p-6 shadow-sm">
+        <div className="vs-card p-6">
           <h3 className="font-bold text-vs-text mb-4 text-lg">Weekly Progress</h3>
           <div className="flex items-center gap-4">
             <div className="flex-1 h-4 bg-vs-bg rounded-full overflow-hidden border border-vs-border/50">
@@ -110,18 +102,17 @@ export default function HabitDetailPage() {
       )}
 
       {/* Calendar */}
-      <div className="rounded-2xl bg-vs-surface border border-vs-border p-6 shadow-sm">
+      <div className="vs-card p-6">
         <Calendar
           month={calendarMonth}
           onMonthChange={setCalendarMonth}
           checkInDates={checkedDates}
-          restDayDates={restDates}
         />
       </div>
 
       {/* Recent Activity */}
       {recentCheckIns.length > 0 && (
-        <div className="rounded-2xl bg-vs-surface border border-vs-border p-6 shadow-sm">
+        <div className="vs-card p-6">
           <h3 className="font-heading font-bold text-vs-text mb-5 text-lg">Recent Activity</h3>
           <div className="space-y-3">
             {recentCheckIns.map((ci: any) => (

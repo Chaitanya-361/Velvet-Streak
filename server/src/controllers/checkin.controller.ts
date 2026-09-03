@@ -16,7 +16,7 @@ export async function createCheckIn(req: AuthRequest, res: Response, next: NextF
     const user = await User.findById(userId);
     if (!user) throw new AppError('NOT_FOUND', 404, 'User not found');
 
-    const { habitId, slotIndex, amount, note } = req.body;
+    const { habitId, amount, note } = req.body;
 
     const habit = await Habit.findById(habitId);
     if (!habit || habit.userId.toString() !== userId) {
@@ -25,11 +25,10 @@ export async function createCheckIn(req: AuthRequest, res: Response, next: NextF
 
     const logicalDate = getCurrentLogicalDate(user.preferences);
 
-    // Check not already checked in for this slot
-    const slotIdx = slotIndex || 0;
-    const existing = await CheckIn.findOne({ habitId, logicalDate, slotIndex: slotIdx });
+    // Check not already checked in today
+    const existing = await CheckIn.findOne({ habitId, logicalDate });
     if (existing) {
-      throw new AppError('CONFLICT', 409, 'Already checked in for this slot today');
+      throw new AppError('CONFLICT', 409, 'Already checked in for today');
     }
 
     // Ensure scheduled
@@ -42,7 +41,6 @@ export async function createCheckIn(req: AuthRequest, res: Response, next: NextF
       userId,
       habitId,
       logicalDate,
-      slotIndex: slotIdx,
       amount: habit.habitType === 'quantitative' ? (amount ?? null) : null,
       note: note || null,
       xpAwarded: BASE_CHECKIN_XP,

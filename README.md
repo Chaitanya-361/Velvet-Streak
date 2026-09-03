@@ -23,8 +23,8 @@ A full-stack, gamified habit tracking application with streaks, XP leveling, bad
 | Category | Features |
 |:---------|:---------|
 | **🏠 Dashboard** | Daily habit overview, motivational quotes, quick stats (best streak, habits on fire, today's progress), XP progress bar |
-| **📋 Habit Tracking** | Create/edit/delete habits with a 5-step wizard, check-in with one tap, undo check-ins, rest day support |
-| **🔥 Streaks** | Automatic streak calculation, current & longest streak tracking, streak-preserving rest days |
+| **📋 Habit Tracking** | Create/edit/delete habits with a 4-step wizard, check-in with one tap, undo check-ins |
+| **🔥 Streaks** | Automatic streak calculation, current & longest streak tracking |
 | **🎮 Gamification** | XP rewards for check-ins, 10-level progression system with titles (Hatchling → Grand Peacock), 17 unlockable badges |
 | **🧘 Zen Mode** | Focus timer with animated circular stopwatch, session persistence, weekly per-day breakdown side panel |
 | **📊 Statistics** | Weekly consistency scores, per-habit completion rates, 8-week trend charts, annual activity heatmap, zen focus totals |
@@ -52,10 +52,10 @@ VelvetStreak/
 ├── server/                    # Express REST API (TypeScript)
 │   ├── src/
 │   │   ├── config/            # Environment variables
-│   │   ├── controllers/       # Route handlers (8 controllers)
+│   │   ├── controllers/       # Route handlers (7 controllers)
 │   │   ├── middleware/        # Auth, rate limiting, validation, error handling
-│   │   ├── models/            # Mongoose schemas (7 models)
-│   │   ├── routes/            # Express routers (8 route files)
+│   │   ├── models/            # Mongoose schemas (6 models)
+│   │   ├── routes/            # Express routers (7 route files)
 │   │   ├── services/          # Business logic (gamification, scheduling, day boundary)
 │   │   └── types/             # Shared TypeScript interfaces
 │   └── package.json
@@ -65,15 +65,14 @@ VelvetStreak/
 
 ## 🎯 Core Feature Deep Dive
 
-### 📋 Habit Creation Wizard (5-Step Flow)
+### 📋 Habit Creation Wizard (4-Step Flow)
 
 A guided multi-step wizard for creating habits:
 
 1. **Basic Info** — Name, icon (20 emojis), color (10 palette options), category (Fitness/Creative/Learning/Wellness/Social/Other), description
 2. **Habit Type** — Binary (done/not done) or Quantitative (track amounts like km, pages, minutes)
-3. **Schedule** — 6 schedule types: Daily, Specific days, X times/week, Every N days, Multiple times/day, X times/month
-4. **Rest Days** — Optional streak-safe rest days with configurable weekly limits (1–3 max)
-5. **Review & Create** — Summary card with all selections before confirming
+3. **Schedule** — 3 schedule types: Daily, Specific days, X times/week
+4. **Review & Create** — Summary card with all selections before confirming
 
 ### 🎮 Gamification System
 
@@ -131,9 +130,9 @@ A distraction-free focus timer for deep work sessions:
 
 ### 📅 Habit Detail Page
 
-- **Interactive calendar** with color-coded days (completed / missed / rest day / not scheduled)
+- **Interactive calendar** with color-coded days (completed / missed / not scheduled)
 - **Monthly navigation** — browse check-in history across months
-- **Streak stats** — current streak, longest streak, rest day allowance
+- **Streak stats** — current streak and longest streak
 - **Weekly progress bar** for quantitative habits (e.g., 15/25 km this week)
 - **Recent activity feed** showing individual check-ins with XP earned
 
@@ -209,8 +208,7 @@ A distraction-free focus timer for deep work sessions:
 |:------|:------------|:-----------|
 | **User** | Account & preferences | email, username, xp, level, badges, timezone, day boundary |
 | **Habit** | Habit definitions | name, icon, color, category, schedule, streaks, type |
-| **CheckIn** | Daily completions | habitId, logicalDate, slotIndex, amount, xpAwarded |
-| **RestDay** | Streak-safe skip days | habitId, logicalDate, weekLabel |
+| **CheckIn** | Daily completions | habitId, logicalDate, amount, xpAwarded |
 | **Todo** | Task items | title, deadline, priority, subtasks, completedAt |
 | **Badge** | Achievement definitions | key, name, icon, triggerKey, xpReward |
 | **ZenSession** | Focus timer sessions | startedAt, endedAt, durationSeconds, logicalDate |

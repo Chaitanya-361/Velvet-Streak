@@ -32,7 +32,7 @@ export default function HomePage() {
 
   const dueToday = habits.filter((h: any) => h.todayStatus === 'pending');
   const completedToday = habits.filter((h: any) => h.todayStatus === 'completed');
-  const notScheduled = habits.filter((h: any) => h.todayStatus === 'not_scheduled' || h.todayStatus === 'rest_day');
+  const notScheduled = habits.filter((h: any) => h.todayStatus === 'not_scheduled');
 
   const quote = useMemo(() => motivationalQuotes.length > 0 ? motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)] : { text: "Add some quotes!", author: "You" }, []);
   const longestStreak = habits.length > 0 ? Math.max(...habits.map((h: any) => h.currentStreak || 0)) : 0;

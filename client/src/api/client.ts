@@ -66,6 +66,7 @@ async function tryRefreshToken(): Promise<boolean> {
     const json = await res.json();
     if (json.data?.accessToken) {
       setAccessToken(json.data.accessToken);
+      localStorage.setItem('vs_access_token', json.data.accessToken);
       return true;
     }
     return false;

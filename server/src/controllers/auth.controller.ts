@@ -16,8 +16,8 @@ function generateRefreshToken(userId: string): string {
 function setRefreshCookie(res: Response, token: string) {
   res.cookie('refreshToken', token, {
     httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: 'strict',
+    secure: true, // Required when sameSite is 'none'
+    sameSite: 'none', // Required for cross-domain (Vercel frontend → Render backend)
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
     path: '/api/auth',
   });
@@ -209,7 +209,7 @@ export async function logout(req: AuthRequest, res: Response, next: NextFunction
       }
     }
 
-    res.clearCookie('refreshToken', { path: '/api/auth' });
+    res.clearCookie('refreshToken', { path: '/api/auth', sameSite: 'none', secure: true });
     res.json({ success: true, data: { message: 'Logged out' } });
   } catch (err) {
     next(err);

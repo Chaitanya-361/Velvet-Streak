@@ -1,34 +1,46 @@
 import { useState, useEffect } from 'react';
 import { TrendingUp, Zap, Calendar, BarChart3, Sparkles } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
-import { format } from 'date-fns';
 import { fetchWeeklyStats, fetchHeatmap } from '../api/stats';
 import StatsCard from '../components/StatsCard';
 import AnnualHeatmap from '../components/AnnualHeatmap';
 import { fetchWeeklyZenTotal } from '../api/zen';
 import toast from 'react-hot-toast';
 
+/**
+ * Converts an ISO week label like "2026-W35" into a human-readable date range.
+ * Uses ISO 8601 week numbering where weeks start on Monday.
+ */
 function formatWeekLabel(label: string | undefined): string {
   if (!label) return '';
-  const match = label.match(/^(\d{4})-W?(\d{1,2})$/);
+  const match = label.match(/^(\d{4})-W(\d{1,2})$/);
   if (!match) return label.replace(/\d{4}-/, '');
   
   const year = parseInt(match[1]);
   const week = parseInt(match[2]);
   
+  // ISO 8601: Week 1 contains Jan 4th. Find the Monday of that week.
   const jan4 = new Date(year, 0, 4);
-  const start = new Date(jan4);
-  start.setDate(jan4.getDate() - jan4.getDay()); // Sunday of week 1
-  start.setDate(start.getDate() + (week - 1) * 7);
+  const dayOfWeek = jan4.getDay() || 7; // Convert Sunday=0 to 7
+  const week1Monday = new Date(jan4);
+  week1Monday.setDate(jan4.getDate() - dayOfWeek + 1);
+  
+  // Calculate the Monday of the target week
+  const start = new Date(week1Monday);
+  start.setDate(week1Monday.getDate() + (week - 1) * 7);
   
   const end = new Date(start);
   end.setDate(start.getDate() + 6);
   
-  if (start.getMonth() === end.getMonth()) {
-    return `${format(start, "MMM do")} - ${format(end, "do")}`;
-  } else {
-    return `${format(start, "MMM do")} - ${format(end, "MMM do")}`;
+  const startMonth = start.toLocaleDateString(undefined, { month: 'short' });
+  const endMonth = end.toLocaleDateString(undefined, { month: 'short' });
+  const startDay = start.getDate();
+  const endDay = end.getDate();
+
+  if (startMonth === endMonth) {
+    return `${startMonth} ${startDay}–${endDay}`;
   }
+  return `${startMonth} ${startDay}–${endMonth} ${endDay}`;
 }
 
 export default function StatsPage() {
@@ -50,7 +62,7 @@ export default function StatsPage() {
         setHeatmapData(hm || []);
         setZenWeekTotal(zenTotal.totalSeconds || 0);
 
-        // Load 8-week history for trend charts
+        // Load 8-week history for trend charts (oldest first for left-to-right rendering)
         const history = [];
         for (let i = 7; i >= 0; i--) {
           try {
@@ -88,8 +100,8 @@ export default function StatsPage() {
 
       {/* Per-habit breakdown */}
       {weekly?.perHabit?.length > 0 && (
-        <div className="rounded-2xl bg-vs-surface border border-vs-border p-6 shadow-sm">
-          <h2 className="font-heading font-semibold text-vs-text text-xl mb-6 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-vs-teal" />Per Habit This Week</h2>
+        <div className="vs-card p-6">
+          <h2 className="vs-section-title mb-6 flex items-center gap-2"><BarChart3 className="w-5 h-5 text-vs-teal" />Per Habit This Week</h2>
           <div className="space-y-4">
             {weekly.perHabit.map((h: any) => (
               <div key={h.habitId} className="flex items-center gap-4">
@@ -112,7 +124,7 @@ export default function StatsPage() {
 
       {/* Charts */}
       {weeklyHistory.length > 1 && (
-        <div className="rounded-2xl bg-vs-surface border border-vs-border p-6 shadow-sm">
+        <div className="vs-card p-6">
           <h3 className="font-heading font-semibold text-vs-text mb-6 flex items-center gap-2"><TrendingUp className="w-5 h-5 text-vs-teal" />Consistency Trend</h3>
           <ResponsiveContainer width="100%" height={260}>
             <LineChart data={consistencyTrend}>
@@ -127,14 +139,14 @@ export default function StatsPage() {
       )}
 
       {/* Heatmap */}
-      <div className="rounded-2xl bg-vs-surface border border-vs-border p-6 shadow-sm">
-        <h2 className="font-heading font-semibold text-vs-text mb-6 text-xl">Annual Activity</h2>
+      <div className="vs-card p-6">
+        <h2 className="vs-section-title mb-6">Annual Activity</h2>
         <AnnualHeatmap data={heatmapData} />
       </div>
 
       {/* Empty state */}
       {!weekly && weeklyHistory.length === 0 && (
-        <div className="py-16 text-center bg-vs-surface rounded-2xl border border-vs-border shadow-sm">
+        <div className="py-16 text-center vs-card">
           <div className="text-5xl mb-4">📊</div>
           <p className="text-vs-text font-bold text-lg mb-1">No stats yet</p>
           <p className="text-sm text-vs-muted font-medium">Create habits and check in to see your stats</p>

@@ -2,7 +2,6 @@ import { Response, NextFunction } from 'express';
 import { AppError, AuthRequest } from '../types';
 import { Habit } from '../models/Habit';
 import { CheckIn } from '../models/CheckIn';
-import { RestDay } from '../models/RestDay';
 
 // GET /api/habits
 export async function getHabits(req: AuthRequest, res: Response, next: NextFunction) {
@@ -29,7 +28,7 @@ export async function createHabit(req: AuthRequest, res: Response, next: NextFun
     const userId = req.user!._id;
     const {
       name, icon, color, category, description, habitType,
-      quantitative, schedule, restDayConfig, startDate,
+      quantitative, schedule, startDate,
     } = req.body;
 
     const existingHabitsCount = await Habit.countDocuments({ userId });
@@ -47,15 +46,7 @@ export async function createHabit(req: AuthRequest, res: Response, next: NextFun
       schedule: {
         type: schedule?.type || 'daily',
         days: schedule?.days || [],
-        timesPerDay: schedule?.timesPerDay || 1,
-        timeWindows: schedule?.timeWindows || [],
-        intervalDays: schedule?.intervalDays || null,
         timesPerWeek: schedule?.timesPerWeek || null,
-        timesPerMonth: schedule?.timesPerMonth || null,
-      },
-      restDayConfig: {
-        allowed: restDayConfig?.allowed ?? false,
-        maxPerWeek: restDayConfig?.maxPerWeek ?? null,
       },
       sortOrder: existingHabitsCount,
       startDate: startDate || new Date().toISOString().slice(0, 10),
@@ -80,7 +71,7 @@ export async function updateHabit(req: AuthRequest, res: Response, next: NextFun
       throw new AppError('NOT_FOUND', 404, 'Habit not found');
     }
 
-    const allowed = ['name', 'icon', 'color', 'category', 'description', 'schedule', 'restDayConfig', 'quantitative'];
+    const allowed = ['name', 'icon', 'color', 'category', 'description', 'schedule', 'quantitative'];
     for (const key of allowed) {
       if (req.body[key] !== undefined) {
         (habit as any)[key] = req.body[key];
@@ -102,9 +93,8 @@ export async function deleteHabit(req: AuthRequest, res: Response, next: NextFun
       throw new AppError('NOT_FOUND', 404, 'Habit not found');
     }
     
-    // Cascade delete
+    // Cascade delete check-ins
     await CheckIn.deleteMany({ habitId: habit._id.toString() });
-    await RestDay.deleteMany({ habitId: habit._id.toString() });
     await Habit.findByIdAndDelete(habit._id);
 
     res.json({ success: true, data: { message: 'Habit deleted' } });
@@ -145,19 +135,15 @@ export async function getHabitCalendar(req: AuthRequest, res: Response, next: Ne
     const regex = new RegExp(`^${month}`);
 
     const checkIns = await CheckIn.find({ habitId: habit._id.toString(), logicalDate: { $regex: regex } });
-    const restDays = await RestDay.find({ habitId: habit._id.toString(), logicalDate: { $regex: regex } });
 
     const checkedDates = new Set(checkIns.map(c => c.logicalDate));
-    const restDates = new Set(restDays.map(r => r.logicalDate));
 
     res.json({
       success: true,
       data: {
         month,
         checkInDates: [...checkedDates],
-        restDayDates: [...restDates],
         checkIns,
-        restDays,
       },
     });
   } catch (err) { next(err); }

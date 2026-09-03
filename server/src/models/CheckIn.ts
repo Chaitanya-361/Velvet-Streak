@@ -8,7 +8,6 @@ const CheckInSchema = new Schema<ICheckInDocument>(
     userId: { type: String, required: true, index: true },
     habitId: { type: String, required: true, index: true },
     logicalDate: { type: String, required: true },
-    slotIndex: { type: Number, required: true },
     amount: { type: Number, default: null },
     note: { type: String, default: null },
     xpAwarded: { type: Number, required: true },

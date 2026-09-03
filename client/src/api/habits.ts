@@ -37,10 +37,10 @@ export async function fetchHabitCalendar(id: string, month?: string): Promise<an
 }
 
 // Check-ins
-export async function createCheckIn(habitId: string, slotIndex?: number, amount?: number, note?: string) {
+export async function createCheckIn(habitId: string, amount?: number, note?: string) {
   const res = await api('/checkins', {
     method: 'POST',
-    body: { habitId, slotIndex: slotIndex || 0, amount, note },
+    body: { habitId, amount, note },
   });
   return res.data;
 }
@@ -57,14 +57,4 @@ export async function fetchCheckIns(params?: { habitId?: string; from?: string; 
 
 export async function undoCheckIn(id: string) {
   await api(`/checkins/${id}`, { method: 'DELETE' });
-}
-
-// Rest days
-export async function createRestDay(habitId: string) {
-  const res = await api('/restdays', { method: 'POST', body: { habitId } });
-  return res.data;
-}
-
-export async function undoRestDay(id: string) {
-  await api(`/restdays/${id}`, { method: 'DELETE' });
 }

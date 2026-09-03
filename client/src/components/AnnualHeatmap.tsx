@@ -8,14 +8,14 @@ interface AnnualHeatmapProps {
 }
 
 function getIntensityColor(count: number): string {
-  if (count === 0) return 'var(--vs-surface)';
+  if (count === 0) return 'rgba(226, 232, 240, 0.4)'; // Subtle grey so empty cells are visible
   if (count === 1) return 'rgba(103, 190, 217, 0.3)';
   if (count === 2) return 'rgba(103, 190, 217, 0.55)';
   if (count === 3) return 'rgba(103, 190, 217, 0.8)';
   return 'var(--vs-teal)';
 }
 
-export default function AnnualHeatmap({ data, year = 2026 }: AnnualHeatmapProps) {
+export default function AnnualHeatmap({ data, year = new Date().getFullYear() }: AnnualHeatmapProps) {
   const dataMap = useMemo(() => {
     const map = new Map<string, number>();
     data.forEach(d => map.set(d.date, d.count));
@@ -79,8 +79,7 @@ export default function AnnualHeatmap({ data, year = 2026 }: AnnualHeatmapProps)
   const cellSize = 14;
 
   return (
-    <div className="rounded-2xl bg-vs-surface border border-vs-border p-6 w-full shadow-sm">
-      <h3 className="font-heading font-semibold text-vs-text mb-6">Activity Map — {year}</h3>
+    <div className="w-full">
 
       <div 
         className="overflow-x-auto pb-4 w-full [&::-webkit-scrollbar]:hidden"

@@ -23,25 +23,11 @@ const HabitSchema = new Schema<IHabitDocument>(
     schedule: {
       type: {
         type: String,
-        enum: ['daily', 'specific_days', 'times_per_week', 'interval', 'times_per_day', 'times_per_month'],
+        enum: ['daily', 'specific_days', 'times_per_week'],
         required: true,
       },
       days: [{ type: String, enum: ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'] }],
-      timesPerDay: { type: Number },
-      timeWindows: [
-        {
-          label: { type: String },
-          windowStart: { type: String },
-          windowEnd: { type: String },
-        },
-      ],
-      intervalDays: { type: Number, default: null },
       timesPerWeek: { type: Number, default: null },
-      timesPerMonth: { type: Number, default: null },
-    },
-    restDayConfig: {
-      allowed: { type: Boolean, required: true },
-      maxPerWeek: { type: Number, default: null },
     },
     sortOrder: { type: Number, required: true },
     startDate: { type: String, required: true },

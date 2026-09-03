@@ -1,24 +1,15 @@
 export type HabitType = 'binary' | 'quantitative';
 export type HabitCategory = 'Fitness' | 'Creative' | 'Learning' | 'Wellness' | 'Social' | 'Other';
-export type ScheduleType = 'daily' | 'specific_days' | 'times_per_week' | 'interval' | 'times_per_day' | 'times_per_month';
+export type ScheduleType = 'daily' | 'specific_days' | 'times_per_week';
 export type DayOfWeek = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
 export type TodoPriority = 'critical' | 'high' | 'medium' | 'low';
 export type TodoView = 'today' | 'upcoming' | 'all' | 'completed';
-export type DayState = 'completed' | 'missed' | 'not_scheduled' | 'rest_day' | 'today_pending' | 'future';
+export type DayState = 'completed' | 'missed' | 'not_scheduled' | 'today_pending' | 'future';
 
 export interface Schedule {
   type: ScheduleType;
   days?: DayOfWeek[];
-  timesPerDay: number;
-  timeWindows?: { label: string; windowStart: string; windowEnd: string }[];
-  intervalDays?: number;
   timesPerWeek?: number;
-  timesPerMonth?: number;
-}
-
-export interface RestDayConfig {
-  allowed: boolean;
-  maxPerWeek: number | null;
 }
 
 export interface Habit {
@@ -34,23 +25,21 @@ export interface Habit {
     weeklyTarget: number;
   };
   schedule: Schedule;
-  restDayConfig: RestDayConfig;
   sortOrder: number;
   startDate: string;
   currentStreak: number;
   longestStreak: number;
   totalCheckIns: number;
   lastCheckInLogicalDate?: string;
-  todayStatus: 'pending' | 'completed' | 'missed' | 'rest_day' | 'not_scheduled';
-  todayProgress?: number; // for quantitative: amount logged today
-  weeklyProgress?: number; // for quantitative: total this week
+  todayStatus: 'pending' | 'completed' | 'missed' | 'not_scheduled';
+  todayProgress?: number;
+  weeklyProgress?: number;
 }
 
 export interface CheckIn {
   _id: string;
   habitId: string;
   logicalDate: string;
-  slotIndex: number;
   amount?: number;
   note?: string;
   xpAwarded: number;

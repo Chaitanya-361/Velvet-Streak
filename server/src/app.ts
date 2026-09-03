@@ -12,7 +12,6 @@ import authRoutes from './routes/auth.routes';
 import userRoutes from './routes/user.routes';
 import habitRoutes from './routes/habit.routes';
 import checkinRoutes from './routes/checkin.routes';
-import restdayRoutes from './routes/restday.routes';
 import todoRoutes from './routes/todo.routes';
 import statsRoutes from './routes/stats.routes';
 import zenRoutes from './routes/zen.routes';
@@ -61,7 +60,6 @@ export function createApp() {
   app.use('/api/users', userRoutes);
   app.use('/api/habits', habitRoutes);
   app.use('/api/checkins', checkinRoutes);
-  app.use('/api/restdays', restdayRoutes);
   app.use('/api/todos', todoRoutes);
   app.use('/api/stats', statsRoutes);
   app.use('/api/zen', zenRoutes);

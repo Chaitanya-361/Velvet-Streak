@@ -17,16 +17,7 @@ export function isHabitScheduledForDate(habit: Habit, logicalDate: string): bool
     case 'specific_days':
       return habit.schedule.days.includes(dayOfWeek as any);
 
-    case 'interval': {
-      const startMs = new Date(habit.startDate).getTime();
-      const dateMs = new Date(logicalDate).getTime();
-      const diffDays = Math.round((dateMs - startMs) / 86400000);
-      return diffDays >= 0 && (habit.schedule.intervalDays ? diffDays % habit.schedule.intervalDays === 0 : false);
-    }
-
     case 'times_per_week':
-    case 'times_per_month':
-    case 'times_per_day':
       return true; // Flexible — every day is potentially schedulable
 
     default:

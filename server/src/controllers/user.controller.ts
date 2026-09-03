@@ -4,7 +4,6 @@ import { getXPInfo } from '../services/gamification.service';
 import { User } from '../models/User';
 import { Habit } from '../models/Habit';
 import { CheckIn } from '../models/CheckIn';
-import { RestDay } from '../models/RestDay';
 import { Todo } from '../models/Todo';
 import { Badge } from '../models/Badge';
 
@@ -120,7 +119,6 @@ export async function exportData(req: AuthRequest, res: Response, next: NextFunc
 
     const habits = await Habit.find({ userId });
     const checkIns = await CheckIn.find({ userId });
-    const restDays = await RestDay.find({ userId });
     const todos = await Todo.find({ userId });
 
     const userObj = user.toObject();
@@ -133,7 +131,6 @@ export async function exportData(req: AuthRequest, res: Response, next: NextFunc
         user: safeUser, 
         habits, 
         checkIns, 
-        restDays, 
         todos, 
         exportedAt: new Date().toISOString() 
       },
@@ -148,7 +145,6 @@ export async function deleteAccount(req: AuthRequest, res: Response, next: NextF
 
     await Habit.deleteMany({ userId });
     await CheckIn.deleteMany({ userId });
-    await RestDay.deleteMany({ userId });
     await Todo.deleteMany({ userId });
     await User.findByIdAndDelete(userId);
 

@@ -30,6 +30,7 @@ export default function ZenModePage() {
   const [weekTotal, setWeekTotal] = useState(0);
   const [loading, setLoading] = useState(true);
   const startTimeRef = useRef<string | null>(null);
+  const startTimestampRef = useRef<number | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const loadWeeklyData = useCallback(async () => {
@@ -48,6 +49,13 @@ export default function ZenModePage() {
     loadWeeklyData();
   }, [loadWeeklyData]);
 
+  // Compute elapsed from wall-clock time (immune to tab throttling)
+  const updateElapsed = useCallback(() => {
+    if (startTimestampRef.current != null) {
+      setElapsed(Math.floor((Date.now() - startTimestampRef.current) / 1000));
+    }
+  }, []);
+
   // Cleanup interval on unmount
   useEffect(() => {
     return () => {
@@ -55,13 +63,26 @@ export default function ZenModePage() {
     };
   }, []);
 
+  // When the tab becomes visible again, immediately sync the elapsed time
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === 'visible' && startTimestampRef.current != null) {
+        updateElapsed();
+      }
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+    return () => document.removeEventListener('visibilitychange', handleVisibility);
+  }, [updateElapsed]);
+
   const handleStart = () => {
-    startTimeRef.current = new Date().toISOString();
+    const now = Date.now();
+    startTimeRef.current = new Date(now).toISOString();
+    startTimestampRef.current = now;
     setElapsed(0);
     setIsRunning(true);
 
     intervalRef.current = setInterval(() => {
-      setElapsed(prev => prev + 1);
+      updateElapsed();
     }, 1000);
   };
 
@@ -73,7 +94,10 @@ export default function ZenModePage() {
     setIsRunning(false);
 
     const endedAt = new Date().toISOString();
-    const durationSeconds = elapsed;
+    // Use wall-clock time for accurate duration, not the throttle-prone counter
+    const durationSeconds = startTimestampRef.current != null
+      ? Math.floor((Date.now() - startTimestampRef.current) / 1000)
+      : elapsed;
 
     if (durationSeconds < 1 || !startTimeRef.current) return;
 
@@ -88,6 +112,7 @@ export default function ZenModePage() {
       });
       setElapsed(0);
       startTimeRef.current = null;
+      startTimestampRef.current = null;
       loadWeeklyData();
     } catch {
       toast.error('Failed to save focus session');

@@ -53,6 +53,62 @@ body {
   background: var(--vs-feather);
 }
 
+/* Reusable component classes */
+@layer components {
+  /* Cards */
+  .vs-card {
+    @apply rounded-2xl bg-vs-surface border border-vs-border shadow-sm;
+  }
+
+  /* Form inputs */
+  .vs-input {
+    @apply w-full px-4 py-3.5 rounded-xl bg-vs-bg border border-vs-border shadow-sm text-vs-text placeholder-vs-muted focus:border-vs-teal focus:ring-1 focus:ring-vs-teal font-medium;
+  }
+
+  /* Buttons */
+  .vs-btn-primary {
+    @apply px-8 py-3 rounded-xl bg-vs-teal text-white font-bold hover:bg-vs-teal hover:bg-opacity-90 shadow-sm transition-all;
+  }
+  .vs-btn-ghost {
+    @apply px-5 py-3 rounded-xl text-vs-muted hover:text-vs-text hover:bg-vs-bg text-sm font-bold transition-colors;
+  }
+
+  /* Typography */
+  .vs-section-title {
+    @apply font-heading font-semibold text-vs-text text-xl;
+  }
+  .vs-label {
+    @apply block text-sm font-bold text-vs-text mb-2;
+  }
+
+  /* Chips / selection buttons */
+  .vs-chip {
+    @apply px-4 py-3 rounded-xl text-sm font-bold transition-all shadow-sm;
+  }
+  .vs-chip-active {
+    @apply bg-vs-teal text-white;
+  }
+  .vs-chip-inactive {
+    @apply bg-vs-bg text-vs-muted border border-vs-border hover:border-vs-teal hover:border-opacity-30 hover:text-vs-text;
+  }
+
+  /* Option cards (large selectable tiles) */
+  .vs-option-card {
+    @apply p-6 rounded-2xl text-left transition-all border shadow-sm;
+  }
+  .vs-option-card-active {
+    @apply bg-vs-teal bg-opacity-10 border-vs-teal;
+  }
+  .vs-option-card-inactive {
+    @apply bg-vs-bg border-vs-border hover:border-vs-teal hover:border-opacity-30;
+  }
+
+  /* Stat icon container */
+  .vs-stat-icon {
+    @apply w-10 h-10 rounded-full flex items-center justify-center;
+  }
+}
+
 /* Utility classes */
 @layer utilities {
   .text-gradient {

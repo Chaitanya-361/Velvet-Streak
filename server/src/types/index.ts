@@ -1,6 +1,6 @@
 export type HabitType = 'binary' | 'quantitative';
 export type HabitCategory = 'Fitness' | 'Creative' | 'Learning' | 'Wellness' | 'Social' | 'Other';
-export type ScheduleType = 'daily' | 'specific_days' | 'times_per_week' | 'interval' | 'times_per_day' | 'times_per_month';
+export type ScheduleType = 'daily' | 'specific_days' | 'times_per_week';
 export type DayOfWeek = 'MON' | 'TUE' | 'WED' | 'THU' | 'FRI' | 'SAT' | 'SUN';
 export type TodoPriority = 'critical' | 'high' | 'medium' | 'low';
 
@@ -33,11 +33,7 @@ export interface User {
 export interface Schedule {
   type: ScheduleType;
   days: DayOfWeek[];
-  timesPerDay: number;
-  timeWindows: { label: string; windowStart: string; windowEnd: string }[];
-  intervalDays: number | null;
   timesPerWeek: number | null;
-  timesPerMonth: number | null;
 }
 
 export interface Habit {
@@ -51,7 +47,6 @@ export interface Habit {
   habitType: HabitType;
   quantitative: { targetUnit: string; weeklyTarget: number } | null;
   schedule: Schedule;
-  restDayConfig: { allowed: boolean; maxPerWeek: number | null };
   sortOrder: number;
   startDate: string;
   currentStreak: number;
@@ -67,19 +62,9 @@ export interface CheckIn {
   userId: string;
   habitId: string;
   logicalDate: string;
-  slotIndex: number;
   amount: number | null;
   note: string | null;
   xpAwarded: number;
-  createdAt: string;
-}
-
-export interface RestDay {
-  _id: string;
-  userId: string;
-  habitId: string;
-  logicalDate: string;
-  weekLabel: string;
   createdAt: string;
 }
 
