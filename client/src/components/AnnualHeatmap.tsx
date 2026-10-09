@@ -15,6 +15,8 @@ function getIntensityColor(count: number): string {
   return 'var(--vs-teal)';
 }
 
+
+// Function to create padded weeks for each month
 export default function AnnualHeatmap({ data, year = new Date().getFullYear() }: AnnualHeatmapProps) {
   const dataMap = useMemo(() => {
     const map = new Map<string, number>();

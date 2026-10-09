@@ -78,13 +78,13 @@ export async function register(req: Request, res: Response, next: NextFunction) 
     await user.save();
 
     const accessToken = generateAccessToken(user._id.toString());
-    setRefreshCookie(res, refreshToken);
+    setRefreshCookie(res, refreshToken);    // refresh token is http only cookie so its set like this
 
     res.status(201).json({
       success: true,
       data: {
         user: sanitizeUser(user.toObject()),
-        accessToken,
+        accessToken,                        // access token is shortlived so sent in body itself
       },
     });
   } catch (err) {

@@ -1,3 +1,5 @@
+//This file is for typescript definations and interfaces only 
+
 export type HabitType = 'binary' | 'quantitative';
 export type HabitCategory = 'Fitness' | 'Creative' | 'Learning' | 'Wellness' | 'Social' | 'Other';
 export type ScheduleType = 'daily' | 'specific_days' | 'times_per_week';
@@ -107,7 +109,7 @@ export interface ZenSession {
 // Express extension
 import { Request } from 'express';
 export interface AuthRequest extends Request {
-  user?: { _id: string; email: string };
+  user?: { _id: string; email: string };         // allows us to acces req.user._ with those feilds
 }
 
 export class AppError extends Error {

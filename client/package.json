@@ -11,6 +11,9 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
+    "@iconify-json/flat-color-icons": "^1.2.3",
+    "@iconify-json/fluent-emoji-flat": "^1.2.6",
+    "@iconify/react": "^6.0.2",
     "date-fns": "^4.2.1",
     "date-fns-tz": "^3.2.0",
     "lucide-react": "^1.16.0",

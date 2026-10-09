@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Flame, Trophy, Trash2 } from 'lucide-react';
-import { fetchHabit, fetchHabitCalendar, deleteHabit } from '../api/habits';
-import { fetchCheckIns } from '../api/habits';
+import { fetchHabit, fetchHabitCalendar, deleteHabit, fetchCheckIns } from '../api/habits';
 import Calendar from '../components/Calendar';
+import AppIcon from '../components/AppIcon';
 import toast from 'react-hot-toast';
 
 export default function HabitDetailPage() {
@@ -62,7 +62,9 @@ export default function HabitDetailPage() {
       {/* Header */}
       <div className="vs-card flex items-center gap-4 p-4">
         <button onClick={() => navigate('/')} className="p-2 rounded-xl text-vs-muted hover:text-vs-teal hover:bg-vs-teal/10 transition-colors"><ArrowLeft className="w-5 h-5" /></button>
-        <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-vs-border/50 bg-white">{habit.icon}</div>
+        <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm border border-vs-border/50 bg-white">
+          <AppIcon name={habit.icon} size={36} />
+        </div>
         <div className="flex-1">
           <h1 className="font-heading font-bold text-2xl text-vs-text mb-1">{habit.name}</h1>
           <p className="text-xs font-bold text-vs-muted uppercase tracking-wider">{habit.category} · {habit.habitType} · {habit.schedule.type.replace(/_/g, ' ')}</p>

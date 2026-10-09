@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Check, Clock, AlertTriangle, ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
+import AppIcon from './AppIcon';
 import type { Todo } from '../types';
 
 interface TodoCardProps {
@@ -7,10 +8,10 @@ interface TodoCardProps {
 }
 
 const priorityConfig = {
-  critical: { color: 'border-red-500', bg: 'bg-red-500/10', text: 'text-red-400', label: '🔴 Critical', pulse: true },
-  high:     { color: 'border-orange-500', bg: 'bg-orange-500/10', text: 'text-orange-400', label: '🟠 High', pulse: false },
-  medium:   { color: 'border-yellow-500', bg: 'bg-yellow-500/10', text: 'text-yellow-400', label: '🟡 Medium', pulse: false },
-  low:      { color: 'border-green-500', bg: 'bg-green-500/10', text: 'text-green-400', label: '🟢 Low', pulse: false },
+  critical: { color: 'border-red-500', bg: 'bg-red-500/10', text: 'text-red-400', label: 'Critical', icon: '🔴', pulse: true },
+  high:     { color: 'border-orange-500', bg: 'bg-orange-500/10', text: 'text-orange-400', label: 'High', icon: '🟠', pulse: false },
+  medium:   { color: 'border-yellow-500', bg: 'bg-yellow-500/10', text: 'text-yellow-400', label: 'Medium', icon: '🟡', pulse: false },
+  low:      { color: 'border-green-500', bg: 'bg-green-500/10', text: 'text-green-400', label: 'Low', icon: '🟢', pulse: false },
 };
 
 function getRelativeDeadline(deadline: string): { text: string; isOverdue: boolean } {
@@ -64,7 +65,8 @@ export default function TodoCard({ todo }: TodoCardProps) {
           </h3>
 
           <div className="flex flex-wrap items-center gap-2 mt-1.5">
-            <span className={`text-xs px-2 py-0.5 rounded-full ${config.bg} ${config.text} font-medium`}>
+            <span className={`text-xs px-2 py-0.5 rounded-full ${config.bg} ${config.text} font-medium inline-flex items-center gap-1.5`}>
+              <AppIcon name={config.icon} size={11} />
               {config.label}
             </span>
             <span className={`text-xs flex items-center gap-1 ${isOverdue ? 'text-red-400' : 'text-vs-muted'}`}>

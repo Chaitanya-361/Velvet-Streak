@@ -13,6 +13,7 @@ import HabitDetailPage from './pages/HabitDetailPage';
 import HabitWizardPage from './pages/HabitWizardPage';
 import SettingsPage from './pages/SettingsPage';
 import ZenModePage from './pages/ZenModePage';
+import AppIcon from './components/AppIcon';
 
 function AppRoutes() {
   const { isAuthenticated, isLoading } = useAuth();
@@ -21,7 +22,7 @@ function AppRoutes() {
     return (
       <div className="min-h-screen bg-vs-deep flex items-center justify-center">
         <div className="text-center animate-fade-in">
-          <div className="text-5xl mb-4 animate-float">🦚</div>
+          <div className="mb-4 animate-float flex justify-center"><AppIcon name="🦚" size={54} /></div>
           <p className="text-vs-feather font-heading font-semibold">Loading Velvet Streak...</p>
         </div>
       </div>

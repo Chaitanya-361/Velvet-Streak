@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, ArrowRight, Check, Sparkles } from 'lucide-react';
+import AppIcon, { AVAILABLE_HABIT_ICONS } from '../components/AppIcon';
 import { createHabit } from '../api/habits';
 import toast from 'react-hot-toast';
 
@@ -11,7 +12,6 @@ const SCHEDULE_TYPES = [
   { key: 'times_per_week', label: 'X times/week', desc: 'Flexible days' },
 ] as const;
 const DAYS = ['MON','TUE','WED','THU','FRI','SAT','SUN'] as const;
-const ICONS = ['🏃','🧘','📖','🎸','💧','✍️','🎯','💪','🧠','🌱','🎨','🏋️','🚴','📝','🍎','💤','🧹','📚','🎵','☕'];
 const COLORS = ['#00838F','#4DD0E1','#FFD54F','#00C853','#F48FB1','#80CBC4','#FF8A65','#BA68C8','#7986CB','#A1887F'];
 const TOTAL_STEPS = 4;
 
@@ -20,7 +20,7 @@ export default function HabitWizardPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [form, setForm] = useState({
-    name: '', icon: '🏃', color: '#00838F', category: 'Fitness' as string,
+    name: '', icon: AVAILABLE_HABIT_ICONS[0].id, color: '#00838F', category: 'Fitness' as string,
     description: '', habitType: 'binary' as 'binary'|'quantitative',
     targetUnit: '', weeklyTarget: 0,
     scheduleType: 'daily' as string, days: [] as string[],
@@ -85,8 +85,20 @@ export default function HabitWizardPage() {
             </div>
             <div>
               <label className="vs-label mb-3">Icon</label>
-              <div className="flex flex-wrap gap-3">{ICONS.map(i => (
-                <button key={i} onClick={() => update('icon', i)} className={`w-12 h-12 rounded-xl text-2xl flex items-center justify-center transition-all shadow-sm ${form.icon === i ? 'bg-white border-2 border-vs-teal scale-110' : 'bg-vs-bg border border-vs-border hover:bg-vs-surface'}`}>{i}</button>
+              <div className="flex flex-wrap gap-3">{AVAILABLE_HABIT_ICONS.map(i => (
+                <button
+                  key={i.id}
+                  type="button"
+                  title={i.label}
+                  onClick={() => update('icon', i.id)}
+                  className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all shadow-sm ${
+                    form.icon === i.id
+                      ? 'bg-white border-2 border-vs-teal scale-110 shadow-md shadow-vs-teal/20'
+                      : 'bg-vs-bg border border-vs-border hover:bg-vs-surface hover:scale-105'
+                  }`}
+                >
+                  <AppIcon name={i.id} size={28} />
+                </button>
               ))}</div>
             </div>
             <div>
@@ -119,7 +131,7 @@ export default function HabitWizardPage() {
                 <p className="text-sm font-medium text-vs-muted mt-1">Simple completion tracking</p>
               </button>
               <button onClick={() => update('habitType', 'quantitative')} className={`vs-option-card ${form.habitType === 'quantitative' ? 'vs-option-card-active' : 'vs-option-card-inactive'}`}>
-                <span className="text-3xl">📊</span>
+                <div className="flex items-center justify-center h-9"><AppIcon name="📊" size={32} /></div>
                 <h3 className="font-bold text-vs-text mt-3 text-lg">Track Amount</h3>
                 <p className="text-sm font-medium text-vs-muted mt-1">Log km, pages, minutes, etc.</p>
               </button>

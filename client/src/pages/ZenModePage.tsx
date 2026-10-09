@@ -2,6 +2,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { Play, Square, Clock, Flame } from 'lucide-react';
 import { saveZenSession, fetchWeeklyZenSessions } from '../api/zen';
 import type { ZenWeeklyDay } from '../types';
+import AppIcon from '../components/AppIcon';
 import toast from 'react-hot-toast';
 
 function formatTime(totalSeconds: number): string {
@@ -245,7 +246,7 @@ export default function ZenModePage() {
 
             {loading ? (
               <div className="py-10 text-center text-vs-muted text-sm animate-fade-in">
-                <div className="text-2xl mb-2 animate-float">🧘</div>
+                <div className="mb-2 animate-float flex justify-center"><AppIcon name="🧘" size={28} /></div>
                 Loading...
               </div>
             ) : (

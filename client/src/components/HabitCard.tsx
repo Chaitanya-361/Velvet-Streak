@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Check, Flame, ChevronRight, Pencil, X } from 'lucide-react';
 import { createCheckIn, undoCheckIn } from '../api/habits';
 import Modal from './Modal';
+import AppIcon from './AppIcon';
 import toast from 'react-hot-toast';
 
 interface HabitCardProps {
@@ -87,7 +88,9 @@ export default function HabitCard({ habit, onCheckIn }: HabitCardProps) {
         }`}>
         <div className="absolute left-0 top-0 bottom-0 w-1.5 rounded-l-2xl" style={{ backgroundColor: habit.color || '#006064' }} />
         <div className="p-4 pl-6 flex items-center gap-4">
-          <div className="w-12 h-12 rounded-full flex items-center justify-center text-2xl shrink-0 transition-transform group-hover:scale-105 border border-vs-border/50 shadow-sm" style={{ backgroundColor: `${habit.color}15` || '#00606415' }}>{habit.icon}</div>
+          <div className="w-12 h-12 rounded-full flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 border border-vs-border/50 shadow-sm" style={{ backgroundColor: `${habit.color}15` || '#00606415' }}>
+            <AppIcon name={habit.icon} size={28} />
+          </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-bold text-vs-text truncate text-base">{habit.name}</h3>

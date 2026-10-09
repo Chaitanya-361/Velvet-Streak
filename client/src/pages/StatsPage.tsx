@@ -4,6 +4,7 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianG
 import { fetchWeeklyStats, fetchHeatmap } from '../api/stats';
 import StatsCard from '../components/StatsCard';
 import AnnualHeatmap from '../components/AnnualHeatmap';
+import AppIcon from '../components/AppIcon';
 import { fetchWeeklyZenTotal } from '../api/zen';
 import toast from 'react-hot-toast';
 
@@ -77,7 +78,12 @@ export default function StatsPage() {
     loadStats();
   }, []);
 
-  if (loading) return <div className="py-20 text-center text-vs-muted animate-fade-in"><div className="text-4xl mb-4 animate-float">📊</div>Loading stats...</div>;
+  if (loading) return (
+    <div className="py-20 text-center text-vs-muted animate-fade-in">
+      <div className="mb-4 animate-float flex justify-center"><AppIcon name="📊" size={48} /></div>
+      Loading stats...
+    </div>
+  );
 
   const consistencyTrend = weeklyHistory.map(w => ({
     week: formatWeekLabel(w.weekLabel),
@@ -147,7 +153,7 @@ export default function StatsPage() {
       {/* Empty state */}
       {!weekly && weeklyHistory.length === 0 && (
         <div className="py-16 text-center vs-card">
-          <div className="text-5xl mb-4">📊</div>
+          <div className="mb-4 flex justify-center"><AppIcon name="📊" size={54} /></div>
           <p className="text-vs-text font-bold text-lg mb-1">No stats yet</p>
           <p className="text-sm text-vs-muted font-medium">Create habits and check in to see your stats</p>
         </div>

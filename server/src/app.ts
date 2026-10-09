@@ -33,8 +33,8 @@ export function createApp() {
 
   // Parsing
   app.use(express.json({ limit: '1mb' }));
-  app.use(express.urlencoded({ extended: true }));
-  app.use(cookieParser(env.COOKIE_SECRET));
+  app.use(express.urlencoded({ extended: true }));  // parses html form submissions 
+  app.use(cookieParser(env.COOKIE_SECRET));  // populates req.cookies and req.signedCookies
 
   // Logging
   if (env.NODE_ENV !== 'test') {

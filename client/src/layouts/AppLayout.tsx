@@ -3,6 +3,7 @@ import { Outlet, NavLink, useLocation } from 'react-router-dom';
 import { Home, BarChart3, CheckSquare, User, Settings, Menu, X, Feather, Sparkles } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import FAB from '../components/FAB';
+import AppIcon from '../components/AppIcon';
 
 const LEVEL_TITLES = [
   'Hatchling', 'Fledgling', 'Feathered', 'Preening', 'Strutter',
@@ -53,8 +54,7 @@ export default function AppLayout() {
         <div className="p-4">
           <div className="rounded-2xl bg-vs-surface border border-vs-border shadow-sm p-3 flex items-center gap-3 hover:border-vs-teal/30 transition-colors cursor-pointer">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-vs-teal/10 to-vs-feather/20 flex items-center justify-center text-lg shadow-inner overflow-hidden border border-vs-teal">
-               {/* Could use an avatar image here if available, fallback to emoji */}
-               <span>🦚</span>
+               <AppIcon name="🦚" size={24} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold text-vs-text truncate">{user?.displayName || 'User'}</p>

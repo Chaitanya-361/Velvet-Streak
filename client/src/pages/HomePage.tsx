@@ -2,6 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { Flame, Zap, Trophy, Sparkles } from 'lucide-react';
 import HabitCard from '../components/HabitCard';
 import XPProgressBar from '../components/XPProgressBar';
+import AppIcon from '../components/AppIcon';
 import { useAuth } from '../context/AuthContext';
 import { fetchDashboard } from '../api/stats';
 import toast from 'react-hot-toast';
@@ -44,7 +45,7 @@ export default function HomePage() {
   if (loading) {
     return (
       <div className="max-w-3xl mx-auto py-20 text-center">
-        <div className="text-4xl animate-float mb-4">🦚</div>
+        <div className="mb-4 animate-float flex justify-center"><AppIcon name="🦚" size={48} /></div>
         <p className="text-vs-muted font-medium">Loading your habits...</p>
       </div>
     );
@@ -70,7 +71,7 @@ export default function HomePage() {
         <div className="rounded-2xl bg-vs-surface border border-vs-border shadow-sm p-6 flex flex-col items-center justify-center card-hover min-h-[140px]">
           <Zap className="w-6 h-6 text-vs-teal mb-3" />
           <p className="text-4xl font-heading font-bold text-vs-text leading-none mb-2">{habitsOnStreak}</p>
-          <p className="text-sm font-semibold text-vs-muted">On Fire 🔥</p>
+          <p className="text-sm font-semibold text-vs-muted flex items-center gap-1.5">On Fire <AppIcon name="🔥" size={16} /></p>
         </div>
         <div className="rounded-2xl bg-vs-surface border border-vs-border shadow-sm p-6 flex flex-col items-center justify-center card-hover min-h-[140px]">
           <Trophy className="w-6 h-6 text-vs-teal mb-3" />
@@ -87,7 +88,7 @@ export default function HomePage() {
       {/* Empty state */}
       {habits.length === 0 && (
         <div className="rounded-2xl bg-vs-surface border border-vs-border p-12 text-center shadow-sm">
-          <div className="text-5xl mb-4">🦚</div>
+          <div className="mb-4 flex justify-center"><AppIcon name="🦚" size={54} /></div>
           <h2 className="font-heading font-bold text-xl text-vs-text mb-2">No habits yet!</h2>
           <p className="text-sm text-vs-muted mb-6">Create your first habit to start building streaks.</p>
           <a href="/habits/new" className="inline-flex items-center gap-2 px-8 py-3.5 rounded-full bg-vs-teal text-white font-bold hover:shadow-lg hover:shadow-vs-teal/30 hover:bg-vs-teal/90 transition-all">

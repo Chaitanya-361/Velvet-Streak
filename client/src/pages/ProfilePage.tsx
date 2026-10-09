@@ -5,6 +5,7 @@ import { fetchProfile, fetchBadges } from '../api/stats';
 import { fetchHabits } from '../api/habits';
 import XPProgressBar from '../components/XPProgressBar';
 import BadgeGrid from '../components/BadgeGrid';
+import AppIcon from '../components/AppIcon';
 import toast from 'react-hot-toast';
 
 const LEVEL_THRESHOLDS = [0, 200, 500, 1000, 2000, 4000, 7000, 12000, 20000, 35000];
@@ -26,7 +27,12 @@ export default function ProfilePage() {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="py-20 text-center text-vs-muted font-medium animate-fade-in"><div className="text-4xl mb-4 animate-float">🦚</div>Loading profile...</div>;
+  if (loading) return (
+    <div className="py-20 text-center text-vs-muted font-medium animate-fade-in">
+      <div className="mb-4 animate-float flex justify-center"><AppIcon name="🦚" size={48} /></div>
+      Loading profile...
+    </div>
+  );
 
   const level = profile?.level || user?.level || 1;
   const xp = profile?.xp || user?.xp || 0;
@@ -38,7 +44,9 @@ export default function ProfilePage() {
     <div className="max-w-3xl mx-auto space-y-6 animate-fade-in pb-20">
       {/* Header */}
       <div className="rounded-2xl bg-vs-surface border border-vs-border p-8 text-center shadow-sm">
-        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-vs-teal/10 to-vs-feather/20 mx-auto flex items-center justify-center text-5xl mb-4 shadow-sm border border-vs-teal text-white">🦚</div>
+        <div className="w-24 h-24 rounded-full bg-gradient-to-br from-vs-teal/10 to-vs-feather/20 mx-auto flex items-center justify-center mb-4 shadow-sm border border-vs-teal">
+          <AppIcon name="🦚" size={52} />
+        </div>
         <h1 className="font-heading font-bold text-2xl text-vs-text">{profile?.displayName || user?.displayName}</h1>
         <p className="text-sm font-medium text-vs-muted mt-1">@{profile?.username || user?.username}</p>
         {profile?.bio && <p className="text-sm font-medium text-vs-text/80 mt-3 max-w-md mx-auto">{profile.bio}</p>}

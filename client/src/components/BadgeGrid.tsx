@@ -1,4 +1,5 @@
 import type { Badge } from '../types';
+import AppIcon from './AppIcon';
 
 interface BadgeGridProps {
   badges: Badge[];
@@ -25,7 +26,9 @@ export default function BadgeGrid({ badges }: BadgeGridProps) {
             }`}
             title={badge.earned ? `${badge.name} — earned ${badge.earnedAt}` : `${badge.name} — ${badge.unlockCondition}`}
           >
-            <span className="text-3xl transition-transform group-hover:scale-110">{badge.icon}</span>
+            <div className="w-9 h-9 flex items-center justify-center transition-transform group-hover:scale-110">
+              <AppIcon name={badge.key || badge.icon} size={32} />
+            </div>
             <span className="text-[10px] text-vs-muted text-center leading-tight font-medium truncate w-full">
               {badge.name}
             </span>
