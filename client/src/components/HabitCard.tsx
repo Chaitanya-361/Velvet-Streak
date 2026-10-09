@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Check, Flame, ChevronRight, Pencil, X } from 'lucide-react';
 import { createCheckIn, undoCheckIn } from '../api/habits';
@@ -15,6 +15,10 @@ export default function HabitCard({ habit, onCheckIn }: HabitCardProps) {
   const [checked, setChecked] = useState(habit.todayStatus === 'completed');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    setChecked(habit.todayStatus === 'completed');
+  }, [habit.todayStatus]);
 
   const isQuantitative = habit.habitType === 'quantitative';
   const isPending = habit.todayStatus === 'pending' || habit.todayStatus === 'completed';

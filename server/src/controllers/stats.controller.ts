@@ -17,10 +17,18 @@ export async function getDashboard(req: AuthRequest, res: Response, next: NextFu
     const habits = await Habit.find({ userId });
     const checkIns = await CheckIn.find({ userId, logicalDate });
 
+    const currentWeek = getISOWeekLabel(logicalDate);
+    const { start: weekStart, end: weekEnd } = getWeekDateRange(currentWeek);
+    const weekCheckIns = await CheckIn.find({
+      userId,
+      logicalDate: { $gte: weekStart, $lte: weekEnd },
+    });
+
     // Determine today's status for each habit
     const habitStatuses = habits.map(habit => {
       const isScheduled = isHabitScheduledForDate(habit.toObject() as any, logicalDate);
       const todayCheckIns = checkIns.filter(c => c.habitId.toString() === habit._id.toString());
+      const habitWeekCheckIns = weekCheckIns.filter(c => c.habitId.toString() === habit._id.toString());
 
       let todayStatus: string;
       if (!isScheduled) {
@@ -31,12 +39,21 @@ export async function getDashboard(req: AuthRequest, res: Response, next: NextFu
         todayStatus = 'pending';
       }
 
+      const isQuantitative = habit.habitType === 'quantitative';
+      const weeklyProgress = isQuantitative
+        ? habitWeekCheckIns.reduce((sum, c) => sum + (c.amount || 0), 0)
+        : habitWeekCheckIns.length;
+
+      const todayProgress = isQuantitative
+        ? todayCheckIns.reduce((sum, c) => sum + (c.amount || 0), 0)
+        : todayCheckIns.length;
+
       return {
         ...habit.toObject(),
         todayStatus,
-        todayProgress: todayCheckIns.length,
+        todayProgress,
         todayCheckInId: todayCheckIns.length > 0 ? todayCheckIns[0]._id : null,
-        weeklyProgress: 0,
+        weeklyProgress,
       };
     });
 

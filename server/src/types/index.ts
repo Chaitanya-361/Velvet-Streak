@@ -78,7 +78,6 @@ export interface Todo {
   deadline: string;
   priority: TodoPriority;
   category: string | null;
-  subtasks: { id: string; title: string; isCompleted: boolean }[];
   isCompleted: boolean;
   completedAt: string | null;
   xpAwarded: number | null;

@@ -30,8 +30,3 @@ export async function toggleTodoComplete(id: string): Promise<Todo> {
   const res = await api<{ data: Todo }>(`/todos/${id}/complete`, { method: 'PATCH' });
   return res.data;
 }
-
-export async function toggleSubtask(todoId: string, subtaskId: string): Promise<Todo> {
-  const res = await api<{ data: Todo }>(`/todos/${todoId}/subtasks/${subtaskId}/toggle`, { method: 'PATCH' });
-  return res.data;
-}

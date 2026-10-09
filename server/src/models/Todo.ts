@@ -11,13 +11,6 @@ const TodoSchema = new Schema<ITodoDocument>(
     deadline: { type: String, required: true },
     priority: { type: String, enum: ['critical', 'high', 'medium', 'low'], required: true },
     category: { type: String, default: null },
-    subtasks: [
-      {
-        id: { type: String, required: true },
-        title: { type: String, required: true },
-        isCompleted: { type: Boolean, default: false },
-      },
-    ],
     isCompleted: { type: Boolean, default: false },
     completedAt: { type: String, default: null },
     xpAwarded: { type: Number, default: null },

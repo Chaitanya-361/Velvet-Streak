@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Plus, Search, Trash2, CheckCircle, Circle, ListChecks } from 'lucide-react';
-import { fetchTodos, createTodo, deleteTodo, toggleTodoComplete, toggleSubtask } from '../api/todos';
+import { fetchTodos, createTodo, deleteTodo, toggleTodoComplete } from '../api/todos';
 import CustomSelect from '../components/CustomSelect';
 import DatePicker from '../components/DatePicker';
 import toast from 'react-hot-toast';
@@ -58,10 +58,6 @@ export default function TodoPage() {
 
   const handleDelete = async (id: string) => {
     try { await deleteTodo(id); toast.success('Deleted'); loadTodos(); } catch { toast.error('Failed to delete'); }
-  };
-
-  const handleSubtask = async (todoId: string, subtaskId: string) => {
-    try { await toggleSubtask(todoId, subtaskId); loadTodos(); } catch { toast.error('Failed'); }
   };
 
   const priorityColors: Record<string, string> = { critical: 'text-vs-rose border-vs-rose', high: 'text-vs-gold border-vs-gold', medium: 'text-amber-500 border-amber-500', low: 'text-vs-emerald border-vs-emerald' };
@@ -130,19 +126,19 @@ export default function TodoPage() {
       {overdue.length > 0 && (
         <section>
           <h2 className="text-sm font-bold text-vs-rose mb-3 flex items-center gap-2 uppercase tracking-wider"><span className="w-2.5 h-2.5 rounded-full bg-vs-rose" />Overdue ({overdue.length})</h2>
-          <div className="space-y-3">{overdue.map(t => <TodoItem key={t._id} todo={t} onToggle={handleToggle} onDelete={handleDelete} onSubtask={handleSubtask} priorityColors={priorityColors} />)}</div>
+          <div className="space-y-3">{overdue.map(t => <TodoItem key={t._id} todo={t} onToggle={handleToggle} onDelete={handleDelete} priorityColors={priorityColors} />)}</div>
         </section>
       )}
 
       {due.length > 0 && (
         <section className={overdue.length > 0 ? "pt-4" : ""}>
-          <div className="space-y-3">{due.map(t => <TodoItem key={t._id} todo={t} onToggle={handleToggle} onDelete={handleDelete} onSubtask={handleSubtask} priorityColors={priorityColors} />)}</div>
+          <div className="space-y-3">{due.map(t => <TodoItem key={t._id} todo={t} onToggle={handleToggle} onDelete={handleDelete} priorityColors={priorityColors} />)}</div>
         </section>
       )}
 
       {completed.length > 0 && tab !== 'today' && tab !== 'upcoming' && (
         <section className="pt-4">
-          <div className="space-y-3">{completed.map(t => <TodoItem key={t._id} todo={t} onToggle={handleToggle} onDelete={handleDelete} onSubtask={handleSubtask} priorityColors={priorityColors} />)}</div>
+          <div className="space-y-3">{completed.map(t => <TodoItem key={t._id} todo={t} onToggle={handleToggle} onDelete={handleDelete} priorityColors={priorityColors} />)}</div>
         </section>
       )}
 
@@ -153,15 +149,14 @@ export default function TodoPage() {
   );
 }
 
-function TodoItem({ todo, onToggle, onDelete, onSubtask, priorityColors }: any) {
-  const [expanded, setExpanded] = useState(false);
+function TodoItem({ todo, onToggle, onDelete, priorityColors }: any) {
   return (
     <div className={`rounded-2xl bg-vs-surface shadow-sm border transition-all card-hover hover:shadow-md ${todo.isCompleted ? 'border-vs-border/60 bg-[#F8F9FA] opacity-75' : 'border-vs-border hover:border-vs-teal/30'}`}>
       <div className="p-4 flex items-center gap-4">
         <button onClick={() => onToggle(todo._id)} className="shrink-0 transition-transform hover:scale-110">
           {todo.isCompleted ? <CheckCircle className="w-6 h-6 text-vs-emerald" /> : <Circle className="w-6 h-6 text-vs-border hover:text-vs-teal transition-colors" />}
         </button>
-        <div className="flex-1 min-w-0 cursor-pointer" onClick={() => todo.subtasks?.length > 0 && setExpanded(!expanded)}>
+        <div className="flex-1 min-w-0">
           <p className={`font-semibold ${todo.isCompleted ? 'line-through text-vs-muted' : 'text-vs-text'}`}>{todo.title}</p>
           <div className="flex items-center gap-2 mt-1.5 flex-wrap">
             <span className={`text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${priorityColors[todo.priority] || 'text-vs-muted border-vs-border'}`}>{todo.priority}</span>
@@ -170,16 +165,6 @@ function TodoItem({ todo, onToggle, onDelete, onSubtask, priorityColors }: any) 
         </div>
         <button onClick={() => onDelete(todo._id)} className="p-2 rounded-xl text-vs-muted hover:text-vs-rose hover:bg-vs-rose/10 transition-colors"><Trash2 className="w-4 h-4" /></button>
       </div>
-      {expanded && todo.subtasks?.length > 0 && (
-        <div className="px-5 pb-5 pt-0 border-t border-vs-border/50 mt-1 space-y-3">
-          {todo.subtasks.map((s: any) => (
-            <button key={s.id} onClick={() => onSubtask(todo._id, s.id)} className="flex items-center gap-3 w-full text-left text-sm mt-3 hover:bg-vs-surface-hover p-1.5 -mx-1.5 rounded-lg transition-colors">
-              {s.isCompleted ? <CheckCircle className="w-4 h-4 text-vs-emerald shrink-0" /> : <Circle className="w-4 h-4 text-vs-muted shrink-0" />}
-              <span className={`font-medium ${s.isCompleted ? 'line-through text-vs-muted' : 'text-vs-text'}`}>{s.title}</span>
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

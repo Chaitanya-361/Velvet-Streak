@@ -106,6 +106,7 @@ export default function HabitDetailPage() {
       {/* Calendar */}
       <div className="vs-card p-6">
         <Calendar
+          habit={habit}
           month={calendarMonth}
           onMonthChange={setCalendarMonth}
           checkInDates={checkedDates}

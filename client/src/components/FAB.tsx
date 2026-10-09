@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, X, ListTodo, Sparkles } from 'lucide-react';
+import { Plus, ListTodo, Sparkles } from 'lucide-react';
 
 export default function FAB() {
   const [open, setOpen] = useState(false);
@@ -31,13 +31,14 @@ export default function FAB() {
       {/* FAB button */}
       <button
         onClick={() => setOpen(!open)}
+        aria-label={open ? 'Close menu' : 'Open menu'}
         className={`w-14 h-14 rounded-full shadow-xl flex items-center justify-center transition-all duration-300 ${
           open
             ? 'bg-vs-rose rotate-45 text-white'
             : 'bg-vs-teal text-white hover:scale-105'
         }`}
       >
-        {open ? <X className="w-6 h-6" /> : <Plus className="w-6 h-6" />}
+        <Plus className="w-6 h-6" />
       </button>
     </div>
   );

@@ -29,15 +29,8 @@ function getRelativeDeadline(deadline: string): { text: string; isOverdue: boole
 export default function TodoCard({ todo }: TodoCardProps) {
   const [completed, setCompleted] = useState(todo.isCompleted);
   const [expanded, setExpanded] = useState(false);
-  const [subtasks, setSubtasks] = useState(todo.subtasks);
   const config = priorityConfig[todo.priority];
   const { text: deadlineText, isOverdue } = getRelativeDeadline(todo.deadline);
-
-  const toggleSubtask = (id: string) => {
-    setSubtasks(prev => prev.map(s => s.id === id ? { ...s, isCompleted: !s.isCompleted } : s));
-  };
-
-  const completedSubtasks = subtasks.filter(s => s.isCompleted).length;
 
   return (
     <div
@@ -76,41 +69,19 @@ export default function TodoCard({ todo }: TodoCardProps) {
             {todo.category && (
               <span className="text-xs text-vs-muted/70 px-2 py-0.5 rounded-full bg-vs-deep/50">{todo.category}</span>
             )}
-            {subtasks.length > 0 && (
-              <span className="text-xs text-vs-muted">{completedSubtasks}/{subtasks.length} subtasks</span>
-            )}
           </div>
 
-          {/* Expanded section */}
-          {expanded && (
-            <div className="mt-3 space-y-2 animate-fade-in">
-              {todo.description && (
-                <p className="text-sm text-vs-muted">{todo.description}</p>
-              )}
-              {subtasks.length > 0 && (
-                <div className="space-y-1.5 pl-1">
-                  {subtasks.map(st => (
-                    <label key={st.id} className="flex items-center gap-2 cursor-pointer group">
-                      <input
-                        type="checkbox"
-                        checked={st.isCompleted}
-                        onChange={() => toggleSubtask(st.id)}
-                        className="w-4 h-4 rounded border-vs-border bg-vs-deep text-vs-feather focus:ring-vs-feather"
-                      />
-                      <span className={`text-sm ${st.isCompleted ? 'line-through text-vs-muted' : 'text-vs-text'}`}>
-                        {st.title}
-                      </span>
-                    </label>
-                  ))}
-                </div>
-              )}
+          {/* Expanded description */}
+          {expanded && todo.description && (
+            <div className="mt-3 animate-fade-in">
+              <p className="text-sm text-vs-muted">{todo.description}</p>
             </div>
           )}
         </div>
 
         {/* Actions */}
         <div className="flex items-center gap-1 shrink-0">
-          {(todo.description || subtasks.length > 0) && (
+          {todo.description && (
             <button
               onClick={() => setExpanded(!expanded)}
               className="p-1.5 rounded-lg text-vs-muted hover:text-vs-feather hover:bg-vs-feather/10 transition-colors"

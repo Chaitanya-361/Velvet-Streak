@@ -1,9 +1,10 @@
 import { useState, useMemo } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth, isToday, isBefore } from 'date-fns';
+import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, eachDayOfInterval, isSameMonth } from 'date-fns';
 import type { DayState } from '../types';
 
 interface CalendarProps {
+  habit?: any;
   habitStartDate?: string;
   checkInDates: Set<string>; // YYYY-MM-DD
   missedDates?: Set<string>;
@@ -18,17 +19,18 @@ function getDayState(
   isCurrentMonth: boolean,
   checkIns: Set<string>,
   missed: Set<string>,
-  scheduled: Set<string>,
+  isScheduled: boolean,
+  todayStr: string,
 ): DayState {
   if (!isCurrentMonth) return 'not_scheduled';
-  if (isToday(new Date(dateStr))) {
+  if (dateStr === todayStr) {
     if (checkIns.has(dateStr)) return 'completed';
-    return 'today_pending';
+    return isScheduled ? 'today_pending' : 'not_scheduled';
   }
   if (checkIns.has(dateStr)) return 'completed';
   if (missed.has(dateStr)) return 'missed';
-  if (isBefore(new Date(dateStr), new Date())) {
-    if (scheduled.has(dateStr)) return 'missed';
+  if (dateStr < todayStr) {
+    if (isScheduled) return 'missed';
     return 'not_scheduled';
   }
   return 'future';
@@ -36,16 +38,26 @@ function getDayState(
 
 const dayStateStyles: Record<DayState, string> = {
   completed: 'bg-vs-teal text-white shadow-md shadow-vs-teal/30',
-  missed: 'bg-vs-rose/20 text-vs-rose border border-vs-rose/30',
+  missed: 'bg-vs-gold/20 text-vs-gold border border-vs-gold/40',
   not_scheduled: 'text-vs-muted/30',
   today_pending: 'border-2 border-vs-feather text-vs-feather animate-pulse-glow',
   future: 'text-vs-muted/50',
 };
 
-export default function Calendar({ checkInDates, missedDates = new Set(), scheduledDates = new Set(), month, onMonthChange, onDayClick }: CalendarProps) {
+export default function Calendar({
+  habit,
+  habitStartDate,
+  checkInDates,
+  missedDates = new Set(),
+  scheduledDates,
+  month,
+  onMonthChange,
+  onDayClick
+}: CalendarProps) {
   const [internalMonth, setInternalMonth] = useState(new Date());
 
   const currentMonth = month ? new Date(month + '-01T00:00:00') : internalMonth;
+  const todayStr = format(new Date(), 'yyyy-MM-dd');
 
   const days = useMemo(() => {
     const monthStart = startOfMonth(currentMonth);
@@ -54,6 +66,23 @@ export default function Calendar({ checkInDates, missedDates = new Set(), schedu
     const calEnd = endOfWeek(monthEnd, { weekStartsOn: 1 });
     return eachDayOfInterval({ start: calStart, end: calEnd });
   }, [currentMonth]);
+
+  const isScheduledForDay = (day: Date, dateStr: string): boolean => {
+    if (scheduledDates && scheduledDates.size > 0) {
+      return scheduledDates.has(dateStr);
+    }
+    if (!habit) return true;
+    const startDate = habitStartDate || habit.startDate || habit.createdAt?.slice(0, 10);
+    if (startDate && dateStr < startDate) return false;
+    if (!habit.schedule) return true;
+    if (habit.schedule.type === 'daily') return true;
+    if (habit.schedule.type === 'specific_days') {
+      const dayNames = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
+      const dow = dayNames[day.getDay()];
+      return (habit.schedule.days || []).includes(dow);
+    }
+    return true;
+  };
 
   const prevMonth = () => {
     const next = new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1, 1);
@@ -100,7 +129,8 @@ export default function Calendar({ checkInDates, missedDates = new Set(), schedu
         {days.map(day => {
           const dateStr = format(day, 'yyyy-MM-dd');
           const isCurrentMo = isSameMonth(day, currentMonth);
-          const state = getDayState(dateStr, isCurrentMo, checkInDates, missedDates, scheduledDates);
+          const isSched = isScheduledForDay(day, dateStr);
+          const state = getDayState(dateStr, isCurrentMo, checkInDates, missedDates, isSched, todayStr);
 
           return (
             <button
@@ -120,7 +150,7 @@ export default function Calendar({ checkInDates, missedDates = new Set(), schedu
       {/* Legend */}
       <div className="flex flex-wrap items-center gap-4 mt-4 pt-3 border-t border-vs-border">
         <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-vs-teal" /><span className="text-xs text-vs-muted">Completed</span></div>
-        <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-vs-rose/30 border border-vs-rose/40" /><span className="text-xs text-vs-muted">Missed</span></div>
+        <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full bg-vs-gold/30 border border-vs-gold/50" /><span className="text-xs text-vs-muted">Missed</span></div>
         <div className="flex items-center gap-1.5"><div className="w-3 h-3 rounded-full border-2 border-vs-feather" /><span className="text-xs text-vs-muted">Today</span></div>
       </div>
     </div>

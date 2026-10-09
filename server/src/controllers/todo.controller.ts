@@ -1,7 +1,6 @@
 import { Response, NextFunction } from 'express';
 import { AppError, AuthRequest } from '../types';
 import { awardXP, checkBadges } from '../services/gamification.service';
-import mongoose from 'mongoose';
 import { Todo } from '../models/Todo';
 import { User } from '../models/User';
 
@@ -50,7 +49,7 @@ export async function getTodo(req: AuthRequest, res: Response, next: NextFunctio
 export async function createTodo(req: AuthRequest, res: Response, next: NextFunction) {
   try {
     const userId = req.user!._id;
-    const { title, description, deadline, priority, category, subtasks } = req.body;
+    const { title, description, deadline, priority, category } = req.body;
     const now = new Date().toISOString();
 
     const todo = new Todo({
@@ -60,11 +59,6 @@ export async function createTodo(req: AuthRequest, res: Response, next: NextFunc
       deadline,
       priority: priority || 'medium',
       category: category || null,
-      subtasks: (subtasks || []).map((s: any) => ({
-        id: s.id || new mongoose.Types.ObjectId().toString(),
-        title: s.title,
-        isCompleted: false,
-      })),
       isCompleted: false,
       completedAt: null,
       xpAwarded: null,
@@ -85,13 +79,12 @@ export async function updateTodo(req: AuthRequest, res: Response, next: NextFunc
       throw new AppError('NOT_FOUND', 404, 'Todo not found');
     }
 
-    const { title, description, deadline, priority, category, subtasks } = req.body;
+    const { title, description, deadline, priority, category } = req.body;
     if (title !== undefined) todo.title = title;
     if (description !== undefined) todo.description = description;
     if (deadline !== undefined) todo.deadline = deadline;
     if (priority !== undefined) todo.priority = priority;
     if (category !== undefined) todo.category = category;
-    if (subtasks !== undefined) todo.subtasks = subtasks;
     todo.updatedAt = new Date().toISOString();
 
     await todo.save();
@@ -139,26 +132,6 @@ export async function completeTodo(req: AuthRequest, res: Response, next: NextFu
       await checkBadges(req.user!._id);
     }
     todo.updatedAt = new Date().toISOString();
-
-    await todo.save();
-    res.json({ success: true, data: todo });
-  } catch (err) { next(err); }
-}
-
-// PATCH /api/todos/:id/subtasks/:subtaskId/toggle
-export async function toggleSubtask(req: AuthRequest, res: Response, next: NextFunction) {
-  try {
-    const todo = await Todo.findOne({ _id: req.params.id, userId: req.user!._id });
-    if (!todo) {
-      throw new AppError('NOT_FOUND', 404, 'Todo not found');
-    }
-
-    const subtask = todo.subtasks.find(s => s.id === req.params.subtaskId);
-    if (!subtask) throw new AppError('NOT_FOUND', 404, 'Subtask not found');
-
-    subtask.isCompleted = !subtask.isCompleted;
-    todo.updatedAt = new Date().toISOString();
-    todo.markModified('subtasks');
 
     await todo.save();
     res.json({ success: true, data: todo });

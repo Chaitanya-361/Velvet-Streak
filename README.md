@@ -28,7 +28,7 @@ A full-stack, gamified habit tracking application with streaks, XP leveling, bad
 | **🎮 Gamification** | XP rewards for check-ins, 10-level progression system with titles (Hatchling → Grand Peacock), 17 unlockable badges |
 | **🧘 Zen Mode** | Focus timer with animated circular stopwatch, session persistence, weekly per-day breakdown side panel |
 | **📊 Statistics** | Weekly consistency scores, per-habit completion rates, 8-week trend charts, annual activity heatmap, zen focus totals |
-| **✅ To-Do Manager** | Create tasks with deadlines & priorities, subtask support, search & filter (Today/Upcoming/All/Completed), overdue detection |
+| **✅ To-Do Manager** | Create tasks with deadlines & priorities, search & filter (Today/Upcoming/All/Completed), overdue detection |
 | **👤 Profile** | User avatar & bio, badge showcase, habit roster, lifetime stats overview |
 | **⚙️ Settings** | Configurable day boundary time, timezone support, week start day (Mon/Sun), account deletion |
 | **🔐 Auth** | JWT access + refresh tokens, secure cookie-based refresh, bcrypt password hashing, auto token renewal |
@@ -209,7 +209,7 @@ A distraction-free focus timer for deep work sessions:
 | **User** | Account & preferences | email, username, xp, level, badges, timezone, day boundary |
 | **Habit** | Habit definitions | name, icon, color, category, schedule, streaks, type |
 | **CheckIn** | Daily completions | habitId, logicalDate, amount, xpAwarded |
-| **Todo** | Task items | title, deadline, priority, subtasks, completedAt |
+| **Todo** | Task items | title, deadline, priority, completedAt |
 | **Badge** | Achievement definitions | key, name, icon, triggerKey, xpReward |
 | **ZenSession** | Focus timer sessions | startedAt, endedAt, durationSeconds, logicalDate |
 
@@ -269,7 +269,6 @@ A distraction-free focus timer for deep work sessions:
 | PATCH | `/:id` | Update todo |
 | DELETE | `/:id` | Delete todo |
 | PATCH | `/:id/complete` | Toggle completion |
-| PATCH | `/:id/subtasks/:subtaskId/toggle` | Toggle subtask |
 
 </details>
 
