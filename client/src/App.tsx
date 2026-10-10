@@ -13,7 +13,6 @@ import HabitDetailPage from './pages/HabitDetailPage';
 import HabitWizardPage from './pages/HabitWizardPage';
 import SettingsPage from './pages/SettingsPage';
 import ZenModePage from './pages/ZenModePage';
-import NotFoundPage from './pages/NotFoundPage';
 import AppIcon from './components/AppIcon';
 
 function AppRoutes() {
@@ -51,7 +50,7 @@ function AppRoutes() {
       </Route>
 
       {/* Catch-all */}
-      <Route path="*" element={<NotFoundPage />} />
+      <Route path="*" element={<Navigate to={isAuthenticated ? "/" : "/login"} />} />
     </Routes>
   );
 }

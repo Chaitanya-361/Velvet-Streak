@@ -185,7 +185,15 @@ export default function HabitWizardPage() {
           <div className="space-y-6">
             <h2 className="font-heading font-bold text-2xl text-vs-text flex items-center gap-3"><Sparkles className="w-6 h-6 text-vs-gold" /> Review & Create</h2>
             <div className="rounded-2xl bg-vs-bg border border-vs-border/50 shadow-sm p-6 space-y-4">
-              <div className="flex items-center gap-4"><div className="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-sm border border-vs-border/50 bg-white">{form.icon}</div><div><h3 className="font-bold text-vs-text text-lg">{form.name || 'Unnamed Habit'}</h3><p className="text-xs font-bold text-vs-muted uppercase tracking-wider mt-1">{form.category} · {form.habitType}</p></div></div>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-2xl flex items-center justify-center shadow-sm border border-vs-border/50 bg-white" style={{ backgroundColor: `${form.color}15` }}>
+                  <AppIcon name={form.icon} size={36} />
+                </div>
+                <div>
+                  <h3 className="font-bold text-vs-text text-lg">{form.name || 'Unnamed Habit'}</h3>
+                  <p className="text-xs font-bold text-vs-muted uppercase tracking-wider mt-1">{form.category} · {form.habitType}</p>
+                </div>
+              </div>
               <div className="border-t border-vs-border/50 pt-4 space-y-3 text-sm font-medium">
                 {form.habitType === 'quantitative' && <div className="flex justify-between"><span className="text-vs-muted font-bold">Target</span><span className="text-vs-text font-bold">{form.weeklyTarget} {form.targetUnit} / week</span></div>}
                 <div className="flex justify-between"><span className="text-vs-muted font-bold">Schedule</span><span className="text-vs-text font-bold">{form.scheduleType.replace(/_/g, ' ')}{form.scheduleType === 'specific_days' ? `: ${form.days.join(', ')}` : ''}{form.scheduleType === 'times_per_week' ? `: ${form.timesPerWeek}x` : ''}</span></div>
